@@ -5,7 +5,7 @@ public class Yachiyo {
                         + " \\ V /   / _ \\  | |     | |_| |   | |    \\ V /  | | | |\n"
                         + "  | |   / ___ \\ | |___  |  _  |  _| |_    | |   | |_| |\n"
                         + "  |_|  /_/   \\_\\ \\____| |_| |_| |_____|   |_|    \\___/ \n";
-        String greeting = "Ohayo! Yachiyo here!\n" + "What shall we create today?";
+        String greeting = "Ohayo! Yachiyo here!\n" + "What shall we create today?\n";
         String exit = "Until we meet again—have a lovely day!";
 
         System.out.println(banner);
