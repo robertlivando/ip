@@ -15,29 +15,44 @@ public class Yachiyo {
         System.out.println(greeting);
         System.out.println("========================================================\n");
 
+        // Storing tasks
+        String[] tasks = new String[100];
+        int added = 0;
+
         // Echo
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
-            String command = scanner.nextLine();
+            String userInput = scanner.nextLine();
 
             // Skip empty inputs
-            if (command.isEmpty()) {
+            if (userInput.isEmpty()) {
                 continue;
             }
 
-            // Exit when user types bye
-            if (command.equals("bye")) {
-                System.out.println("========================================================");
-                System.out.println(exit);
-                System.out.println("========================================================\n");
-                break;
-            } else {
-                // Echo
-                System.out.println("========================================================");
-                System.out.println(command);
-                System.out.println("========================================================\n");
+            switch (userInput) {
+                case "list":
+                    System.out.println("========================================================");
+                    for (int i = 0; i < added; i++) {
+                        System.out.printf("%d. %s\n", i + 1, tasks[i]);
+                    }
+                    System.out.println("========================================================\n");
+                    break;
+
+                case "bye":
+                    System.out.println("========================================================");
+                    System.out.println(exit);
+                    System.out.println("========================================================\n");
+                    scanner.close();
+                    return;
+
+                default:
+                    tasks[added] = userInput;
+                    added++;
+                    System.out.println("========================================================");
+                    System.out.println("added: " + userInput);
+                    System.out.println("========================================================\n");
+                    break;
             }
         }
-        scanner.close();
     }
 }
