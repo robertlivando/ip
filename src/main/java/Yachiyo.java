@@ -9,50 +9,102 @@ public class Yachiyo {
                         + "  |_|  /_/   \\_\\ \\____| |_| |_| |_____|   |_|    \\___/ \n";
         String greeting = "Hello! Yachiyo here!\n" + "What shall we accomplish today?";
         String exit = "Until we meet again. Take care!~";
+        String breaker = "========================================================";
 
         // Introduction (banner + greeting)
         System.out.println(banner);
         System.out.println(greeting);
-        System.out.println("========================================================\n");
+        System.out.println(breaker);
 
         // Storing tasks
         String[] tasks = new String[100];
+        boolean[] isCompleted = new boolean[100];
         int added = 0;
 
-        // Echo
+        // Logic
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
-            String userInput = scanner.nextLine();
+            String userInput = scanner.nextLine().trim();
 
             // Skip empty inputs
             if (userInput.isEmpty()) {
                 continue;
             }
 
-            switch (userInput) {
-                case "list":
-                    System.out.println("========================================================");
-                    for (int i = 0; i < added; i++) {
-                        System.out.printf("%d. %s\n", i + 1, tasks[i]);
+            String[] words = userInput.split("\\s+");
+            String command = words[0];
+
+            System.out.println(breaker);
+            switch (command) {
+                case "mark":
+                    if (added == 0) {
+                        System.out.println(
+                                "There are no tasks to mark just yet. Let's add one first!"
+                        );
+                        break;
                     }
-                    System.out.println("========================================================\n");
+
+                    int taskNumber = 0;
+                    boolean validNumber = false;
+
+                    if (words.length == 2) {
+                        try {
+                            taskNumber = Integer.parseInt(words[1]);
+                            validNumber = true;
+                        } catch (NumberFormatException e) {
+                            validNumber = false;
+                        }
+                    }
+
+                    if (!validNumber || taskNumber < 1 || taskNumber > added) {
+                        System.out.printf("Hmm... choose a task number from 1 to %d, okay?\n", added);
+                        break;
+                    }
+
+                    int index = taskNumber - 1;
+                    if (isCompleted[index]) {
+                        System.out.println("That task is already shining as complete!");
+                        System.out.printf("- [X] %s\n", tasks[index]);
+                        break;
+                    }
+
+                    // Mark as completed
+                    isCompleted[index] = true;
+                    System.out.println("Wonderful! Another task is complete:");
+                    System.out.printf("- [X] %s\n", tasks[index]);
+                    break;
+
+                case "list":
+                    if (added == 0) {
+                        System.out.println("Our lineup is empty for now. What shall we take on next?");
+                        break;
+                    }
+
+                    System.out.println("Here's our lineup for today:");
+                    for (int i = 0; i < added; i++) {
+                        String mark = isCompleted[i] ? "X" : " ";
+                        System.out.printf("%d.[%s] %s\n", i + 1, mark, tasks[i]);
+                    }
                     break;
 
                 case "bye":
-                    System.out.println("========================================================");
                     System.out.println(exit);
-                    System.out.println("========================================================\n");
                     scanner.close();
+                    System.out.println(breaker);
                     return;
 
                 default:
+                    if (added >= tasks.length) {
+                        System.out.println("Our lineup is completely full! Let's finish a few tasks first.");
+                        break;
+                    }
                     tasks[added] = userInput;
+                    isCompleted[added] = false;
                     added++;
-                    System.out.println("========================================================");
                     System.out.println("added: " + userInput);
-                    System.out.println("========================================================\n");
                     break;
             }
+            System.out.println(breaker + "\n");
         }
     }
 }
