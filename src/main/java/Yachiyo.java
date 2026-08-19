@@ -134,13 +134,14 @@ public class Yachiyo {
 
                 default:
                     if (added >= tasks.length) {
-                        System.out.println("Our lineup is completely full! Let's finish a few tasks first.");
+                        System.out.println("Our lineup is completely full! Let's finish something first.");
                         break;
                     }
                     tasks[added] = userInput;
                     isCompleted[added] = false;
                     added++;
-                    System.out.println("added: " + userInput);
+                    System.out.println("All right, I've added this to our lineup:");
+                    System.out.printf("- [ ] %s\n", userInput);
                     break;
             }
             System.out.println(breaker + "\n");
