@@ -63,7 +63,7 @@ public class Yachiyo {
 
                     int index = taskNumber - 1;
                     if (isCompleted[index]) {
-                        System.out.println("That task is already shining as complete!");
+                        System.out.println("This task is already shining as complete!");
                         System.out.printf("- [X] %s\n", tasks[index]);
                         break;
                     }
@@ -73,6 +73,45 @@ public class Yachiyo {
                     System.out.println("Wonderful! Another task is complete:");
                     System.out.printf("- [X] %s\n", tasks[index]);
                     break;
+
+                case "unmark":
+                    if (added == 0) {
+                        System.out.println(
+                                "There are no tasks to unmark just yet. Let's add one first!"
+                        );
+                        break;
+                    }
+
+                    taskNumber = 0;
+                    validNumber = false;
+
+                    if (words.length == 2) {
+                        try {
+                            taskNumber = Integer.parseInt(words[1]);
+                            validNumber = true;
+                        } catch (NumberFormatException e) {
+                            validNumber = false;
+                        }
+                    }
+
+                    if (!validNumber || taskNumber < 1 || taskNumber > added) {
+                        System.out.printf("Hmm... choose a task number from 1 to %d, okay?\n", added);
+                        break;
+                    }
+
+                    index = taskNumber - 1;
+                    if (!isCompleted[index]) {
+                        System.out.println("This task is already marked as not done.");
+                        System.out.printf("- [ ] %s\n", tasks[index]);
+                        break;
+                    }
+
+                    // Mark as not completed
+                    isCompleted[index] = false;
+                    System.out.println("Not quite finished? No worries, I've marked it as not done:");
+                    System.out.printf("- [ ] %s\n", tasks[index]);
+                    break;
+
 
                 case "list":
                     if (added == 0) {
