@@ -49,13 +49,16 @@ public class Yachiyo {
                         listTasks();
                         break;
 
+                    case "todo":
+                        addToDoTask(userInput);
+                        break;
+
                     case "bye":
                         exit();
-                        scanner.close();
                         return;
 
                     default:
-                        addTask(userInput);
+                        System.out.println("Oh? I don’t recognize that command just yet. Could you try another one?");
                 }
                 System.out.println(BREAKER);
                 System.out.println();
@@ -96,14 +99,14 @@ public class Yachiyo {
         // Task is already marked as completed
         Task task = tasks[taskNumber - 1];
         if (task.isCompleted()) {
-            System.out.println("This task is already shining as complete!");
+            System.out.println("This task is already as shining as complete!");
             System.out.printf("- %s\n", task);
             return;
         }
 
         // Mark as completed
         task.markAsDone();
-        System.out.println("Wonderful! Another task is complete:");
+        System.out.println("Woohoo! Another task is complete:");
         System.out.printf("- %s\n", task);
     }
 
@@ -149,16 +152,24 @@ public class Yachiyo {
         }
     }
 
-    private void addTask(String description) {
+    private void addToDoTask(String userInput) {
         if (taskCount >= tasks.length) {
             System.out.println("Our lineup is completely full! Let's finish something first.");
             return;
         }
 
-        tasks[taskCount] = new Task(description);
+        String[] parts = userInput.split("\\s+", 2);
+        if (parts.length < 2 || parts[1].isBlank()) {
+            System.out.println("It seems this to-do is missing a description. What would you like to accomplish?");
+            return;
+        }
+
+        String description = parts[1];
+        tasks[taskCount] = new ToDo(description);
         taskCount++;
         System.out.println("All right, I've added this to our lineup:");
         System.out.printf("- %s\n", tasks[taskCount - 1]);
+        System.out.printf("And with that, our lineup now has %d task%s!%n", taskCount, taskCount == 1 ? "" : "s");
     }
 
     private void exit() {
