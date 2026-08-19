@@ -59,6 +59,10 @@ public class Yachiyo {
                         addDeadlineTask(arguments);
                         break;
 
+                    case "event":
+                        addEventTask(arguments);
+                        break;
+
                     case "bye":
                         exit();
                         return;
@@ -80,6 +84,10 @@ public class Yachiyo {
 
     private void printInvalidTaskNumberMessage() {
         System.out.printf("Hmm... choose a task number from 1 to %d, okay?\n", taskCount);
+    }
+
+    private void printTaskIsFullMessage() {
+        System.out.println("Our lineup is completely full! Let's finish something first.");
     }
 
     private boolean isValidTaskNumber(int taskNumber) {
@@ -168,12 +176,12 @@ public class Yachiyo {
 
     private void addToDoTask(String description) {
         if (description.isBlank()) {
-            System.out.println("It seems this task is missing a description. What would you like to accomplish?");
+            System.out.println("Hmm, this to-do is missing a description. What shall we call it?");
             return;
         }
 
         if (taskCount >= tasks.length) {
-            System.out.println("Our lineup is completely full! Let's finish something first.");
+            printTaskIsFullMessage();
             return;
         }
 
@@ -190,7 +198,7 @@ public class Yachiyo {
         String[] deadlineParts = taskDetails.split("(?<!\\S)/by(?!\\S)", 2);
         String description = deadlineParts[0].trim();
         if (description.isBlank()) {
-            System.out.println("It seems this task is missing a description. What needs to be done?");
+            System.out.println("Hmm, this deadline is missing a description. What shall we call it?");
             return;
         }
 
@@ -201,11 +209,52 @@ public class Yachiyo {
         String by = deadlineParts[1].trim();
 
         if (taskCount >= tasks.length) {
-            System.out.println("Our lineup is completely full! Let's finish something first.");
+            printTaskIsFullMessage();
             return;
         }
 
         tasks[taskCount] = new Deadline(description, by);
+        taskCount++;
+        int remainingCount = taskCount - completedCount;
+        System.out.println("All right, I've added this to our lineup:");
+        System.out.printf("- %s\n", tasks[taskCount - 1]);
+        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
+                remainingCount, remainingCount == 1 ? "" : "s");
+    }
+
+    private void addEventTask(String taskDetails) {
+        String[] eventParts = taskDetails.split("(?<!\\S)/from(?!\\S)", 2);
+        String description = eventParts[0].trim();
+        if (description.isBlank()) {
+            System.out.println("Hmm, this event is missing a description. What shall we call it?");
+            return;
+        }
+
+        if (eventParts.length < 2 || eventParts[1].trim().isBlank()) {
+            System.out.println("This event still needs a start time. When should it begin?");
+            return;
+        }
+
+        String durationDetails = eventParts[1].trim();
+        String[] durationParts = durationDetails.split("(?<!\\S)/to(?!\\S)", 2);
+        String from = durationParts[0].trim();
+        if (from.isBlank()) {
+            System.out.println("This event still needs a start time. When should it begin?");
+            return;
+        }
+
+        if (durationParts.length < 2 || durationParts[1].trim().isBlank()) {
+            System.out.println("And when should this event come to an end?");
+            return;
+        }
+        String to = durationParts[1].trim();
+
+        if (taskCount >= tasks.length) {
+            printTaskIsFullMessage();
+            return;
+        }
+
+        tasks[taskCount] = new Event(description, from, to);
         taskCount++;
         int remainingCount = taskCount - completedCount;
         System.out.println("All right, I've added this to our lineup:");
