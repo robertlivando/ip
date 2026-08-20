@@ -1,7 +1,7 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Yachiyo {
-    private static final int MAX_TASKS = 100;
     private static final String BANNER =
             "__   __    _      ____   _   _   _____  __   __   ___  \n"
             + "\\ \\ / /   / \\    / ___| | | | | |_   _| \\ \\ / /  / _ \\ \n"
@@ -13,8 +13,7 @@ public class Yachiyo {
     private static final String BREAKER =
             "===================================================================================";
 
-    private final Task[] tasks = new Task[MAX_TASKS];
-    private int taskCount = 0;
+    private final ArrayList<Task> tasks = new ArrayList<>();
     private int completedCount = 0;
 
     public static void main(String[] args) {
@@ -65,6 +64,10 @@ public class Yachiyo {
                             addEventTask(arguments);
                             break;
 
+                        case "delete":
+                            deleteTask(arguments);
+                            break;
+
                         case "bye":
                             exit();
                             return;
@@ -91,12 +94,12 @@ public class Yachiyo {
     }
 
     private boolean isValidTaskNumber(int taskNumber) {
-        return taskNumber >= 1 && taskNumber <= taskCount;
+        return taskNumber >= 1 && taskNumber <= tasks.size();
     }
 
     private void markTask(String arguments) throws YachiyoException {
         // No tasks to mark
-        if (taskCount == 0) {
+        if (tasks.isEmpty()) {
             throw new YachiyoException(
                     "There are no tasks to mark just yet. Let's add one first!"
             );
@@ -106,12 +109,12 @@ public class Yachiyo {
         int taskNumber = parseTaskNumber(arguments);
         if (!isValidTaskNumber(taskNumber)) {
             throw new YachiyoException(
-                    String.format("Hmm... choose a task number from 1 to %d, okay?", taskCount)
+                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
             );
         }
 
         // Task is already marked as completed
-        Task task = tasks[taskNumber - 1];
+        Task task = tasks.get(taskNumber - 1);
         if (task.isCompleted()) {
             System.out.println("This task is already shining as complete!");
             System.out.printf("- %s\n", task);
@@ -121,7 +124,7 @@ public class Yachiyo {
         // Mark as completed
         task.markAsDone();
         completedCount++;
-        int remainingCount = taskCount - completedCount;
+        int remainingCount = tasks.size() - completedCount;
         System.out.println("Woohoo! Another task is complete:");
         System.out.printf("- %s\n", task);
         System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
@@ -130,7 +133,7 @@ public class Yachiyo {
 
     private void unmarkTask(String arguments) throws YachiyoException {
         // No tasks to unmark
-        if (taskCount == 0) {
+        if (tasks.isEmpty()) {
             throw new YachiyoException(
                     "There are no tasks to unmark just yet. Let's add one first!"
             );
@@ -140,12 +143,12 @@ public class Yachiyo {
         int taskNumber = parseTaskNumber(arguments);
         if (!isValidTaskNumber(taskNumber)) {
             throw new YachiyoException(
-                    String.format("Hmm... choose a task number from 1 to %d, okay?", taskCount)
+                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
             );
         }
 
         // Task is already not marked as completed
-        Task task = tasks[taskNumber - 1];
+        Task task = tasks.get(taskNumber - 1);
         if (!task.isCompleted()) {
             System.out.println("This task is already marked as not done.");
             System.out.printf("- %s\n", task);
@@ -155,7 +158,7 @@ public class Yachiyo {
         // Mark as not completed
         task.markAsNotDone();
         completedCount--;
-        int remainingCount = taskCount - completedCount;
+        int remainingCount = tasks.size() - completedCount;
         System.out.println("Not quite finished? No worries, I've marked it as not done:");
         System.out.printf("- %s\n", task);
         System.out.printf("Our lineup now has %d task%s remaining!%n",
@@ -163,14 +166,14 @@ public class Yachiyo {
     }
 
     private void listTasks() {
-        if (taskCount == 0) {
+        if (tasks.isEmpty()) {
             System.out.println("Our lineup is empty for now. What shall we take on next?");
             return;
         }
 
         System.out.println("Here's our lineup for today:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.printf("%d.%s\n", i + 1, tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.printf("%d.%s\n", i + 1, tasks.get(i));
         }
     }
 
@@ -181,17 +184,10 @@ public class Yachiyo {
             );
         }
 
-        if (taskCount >= tasks.length) {
-            throw new YachiyoException(
-                    "Our lineup is completely full! Let's finish something first."
-            );
-        }
-
-        tasks[taskCount] = new ToDo(description);
-        taskCount++;
-        int remainingCount = taskCount - completedCount;
+        tasks.add(new ToDo(description));
+        int remainingCount = tasks.size() - completedCount;
         System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", tasks[taskCount - 1]);
+        System.out.printf("- %s\n", tasks.getLast());
         System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
@@ -212,17 +208,10 @@ public class Yachiyo {
         }
         String by = deadlineParts[1].trim();
 
-        if (taskCount >= tasks.length) {
-            throw new YachiyoException(
-                    "Our lineup is completely full! Let's finish something first."
-            );
-        }
-
-        tasks[taskCount] = new Deadline(description, by);
-        taskCount++;
-        int remainingCount = taskCount - completedCount;
+        tasks.add(new Deadline(description, by));
+        int remainingCount = tasks.size() - completedCount;
         System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", tasks[taskCount - 1]);
+        System.out.printf("- %s\n", tasks.getLast());
         System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
@@ -258,17 +247,40 @@ public class Yachiyo {
         }
         String to = durationParts[1].trim();
 
-        if (taskCount >= tasks.length) {
+        tasks.add(new Event(description, from, to));
+        int remainingCount = tasks.size() - completedCount;
+        System.out.println("All right, I've added this to our lineup:");
+        System.out.printf("- %s\n", tasks.getLast());
+        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
+                remainingCount, remainingCount == 1 ? "" : "s");
+    }
+
+    private void deleteTask(String arguments) throws YachiyoException {
+        // No tasks to delete
+        if (tasks.isEmpty()) {
             throw new YachiyoException(
-                    "Our lineup is completely full! Let's finish something first."
+                    "There are no tasks to delete just yet. Let's add one first!"
             );
         }
 
-        tasks[taskCount] = new Event(description, from, to);
-        taskCount++;
-        int remainingCount = taskCount - completedCount;
-        System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", tasks[taskCount - 1]);
+        // Invalid task number
+        int taskNumber = parseTaskNumber(arguments);
+        if (!isValidTaskNumber(taskNumber)) {
+            throw new YachiyoException(
+                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
+            );
+        }
+
+        // Delete
+        int index = taskNumber - 1;
+        Task task = tasks.get(index);
+        if (task.isCompleted()) {
+            completedCount--;
+        }
+        tasks.remove(index);
+        int remainingCount = tasks.size() - completedCount;
+        System.out.println("All right, I've taken this task out of our lineup:");
+        System.out.printf("- %s\n", task);
         System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
