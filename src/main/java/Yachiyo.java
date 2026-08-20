@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Yachiyo {
@@ -13,8 +14,7 @@ public class Yachiyo {
     private static final String BREAKER =
             "===================================================================================";
 
-    private final ArrayList<Task> tasks = new ArrayList<>();
-    private int completedCount = 0;
+    private final List<Task> tasks = new ArrayList<>();
 
     public static void main(String[] args) {
         new Yachiyo().run();
@@ -40,42 +40,28 @@ public class Yachiyo {
 
                 try {
                     switch (command) {
-                        case "mark":
-                            markTask(arguments);
-                            break;
+                        case "mark" -> markTask(arguments);
 
-                        case "unmark":
-                            unmarkTask(arguments);
-                            break;
+                        case "unmark" -> unmarkTask(arguments);
 
-                        case "list":
-                            listTasks();
-                            break;
+                        case "list" -> listTasks();
 
-                        case "todo":
-                            addToDoTask(arguments);
-                            break;
+                        case "todo" -> addToDoTask(arguments);
 
-                        case "deadline":
-                            addDeadlineTask(arguments);
-                            break;
+                        case "deadline" -> addDeadlineTask(arguments);
 
-                        case "event":
-                            addEventTask(arguments);
-                            break;
+                        case "event" -> addEventTask(arguments);
 
-                        case "delete":
-                            deleteTask(arguments);
-                            break;
+                        case "delete" -> deleteTask(arguments);
 
-                        case "bye":
+                        case "bye" -> {
                             exit();
                             return;
+                        }
 
-                        default:
-                            throw new YachiyoException(
-                                    "Oh? I don’t recognize that command just yet. Could you try another one?"
-                            );
+                        default -> throw new YachiyoException(
+                                "Oh? I don’t recognize that command just yet. Could you try another one?"
+                        );
                     }
                 } catch (YachiyoException e) {
                     System.out.println(e.getMessage());
@@ -97,6 +83,26 @@ public class Yachiyo {
         return taskNumber >= 1 && taskNumber <= tasks.size();
     }
 
+    private int getRemainingTaskCount() {
+        int remainingCount = 0;
+        for (Task task : tasks) {
+            if (!task.isCompleted()) {
+                remainingCount++;
+            }
+        }
+        return remainingCount;
+    }
+
+    private int getTaskIndex(String arguments) throws YachiyoException {
+        int taskNumber = parseTaskNumber(arguments);
+        if (!isValidTaskNumber(taskNumber)) {
+            throw new YachiyoException(
+                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
+            );
+        }
+        return taskNumber - 1;
+    }
+
     private void markTask(String arguments) throws YachiyoException {
         // No tasks to mark
         if (tasks.isEmpty()) {
@@ -105,16 +111,8 @@ public class Yachiyo {
             );
         }
 
-        // Invalid task number
-        int taskNumber = parseTaskNumber(arguments);
-        if (!isValidTaskNumber(taskNumber)) {
-            throw new YachiyoException(
-                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
-            );
-        }
-
-        // Task is already marked as completed
-        Task task = tasks.get(taskNumber - 1);
+        int index = getTaskIndex(arguments);
+        Task task = tasks.get(index);
         if (task.isCompleted()) {
             System.out.println("This task is already shining as complete!");
             System.out.printf("- %s\n", task);
@@ -123,12 +121,15 @@ public class Yachiyo {
 
         // Mark as completed
         task.markAsDone();
-        completedCount++;
-        int remainingCount = tasks.size() - completedCount;
+        int remainingCount = getRemainingTaskCount();
         System.out.println("Woohoo! Another task is complete:");
         System.out.printf("- %s\n", task);
-        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        if (remainingCount == 0) {
+            System.out.println("Wonderful—everything in our lineup is complete!");
+        } else {
+            System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
+                    remainingCount, remainingCount == 1 ? "" : "s");
+        }
     }
 
     private void unmarkTask(String arguments) throws YachiyoException {
@@ -139,26 +140,17 @@ public class Yachiyo {
             );
         }
 
-        // Invalid task number
-        int taskNumber = parseTaskNumber(arguments);
-        if (!isValidTaskNumber(taskNumber)) {
-            throw new YachiyoException(
-                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
-            );
-        }
-
-        // Task is already not marked as completed
-        Task task = tasks.get(taskNumber - 1);
+        int index = getTaskIndex(arguments);
+        Task task = tasks.get(index);
         if (!task.isCompleted()) {
-            System.out.println("This task is already marked as not done.");
+            System.out.println("No changes needed-this task is already waiting in our lineup!");
             System.out.printf("- %s\n", task);
             return;
         }
 
         // Mark as not completed
         task.markAsNotDone();
-        completedCount--;
-        int remainingCount = tasks.size() - completedCount;
+        int remainingCount = getRemainingTaskCount();
         System.out.println("Not quite finished? No worries, I've marked it as not done:");
         System.out.printf("- %s\n", task);
         System.out.printf("Our lineup now has %d task%s remaining!%n",
@@ -171,7 +163,7 @@ public class Yachiyo {
             return;
         }
 
-        System.out.println("Here's our lineup for today:");
+        System.out.println("Here's everything in our lineup:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.printf("%d.%s\n", i + 1, tasks.get(i));
         }
@@ -184,12 +176,7 @@ public class Yachiyo {
             );
         }
 
-        tasks.add(new ToDo(description));
-        int remainingCount = tasks.size() - completedCount;
-        System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", tasks.getLast());
-        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        addTask(new ToDo(description));
     }
 
     private void addDeadlineTask(String taskDetails) throws YachiyoException {
@@ -208,12 +195,7 @@ public class Yachiyo {
         }
         String by = deadlineParts[1].trim();
 
-        tasks.add(new Deadline(description, by));
-        int remainingCount = tasks.size() - completedCount;
-        System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", tasks.getLast());
-        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        addTask(new Deadline(description, by));
     }
 
     private void addEventTask(String taskDetails) throws YachiyoException {
@@ -247,12 +229,15 @@ public class Yachiyo {
         }
         String to = durationParts[1].trim();
 
-        tasks.add(new Event(description, from, to));
-        int remainingCount = tasks.size() - completedCount;
+        addTask(new Event(description, from, to));
+    }
+
+    private void addTask(Task task) {
+        tasks.add(task);
         System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", tasks.getLast());
-        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        System.out.printf("- %s\n", task);
+        System.out.printf("And with that, our lineup now has %d task%s in total!%n",
+                tasks.size(), tasks.size() == 1 ? "" : "s");
     }
 
     private void deleteTask(String arguments) throws YachiyoException {
@@ -263,26 +248,16 @@ public class Yachiyo {
             );
         }
 
-        // Invalid task number
-        int taskNumber = parseTaskNumber(arguments);
-        if (!isValidTaskNumber(taskNumber)) {
-            throw new YachiyoException(
-                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
-            );
-        }
-
-        // Delete
-        int index = taskNumber - 1;
-        Task task = tasks.get(index);
-        if (task.isCompleted()) {
-            completedCount--;
-        }
-        tasks.remove(index);
-        int remainingCount = tasks.size() - completedCount;
+        int index = getTaskIndex(arguments);
+        Task task = tasks.remove(index);
         System.out.println("All right, I've taken this task out of our lineup:");
         System.out.printf("- %s\n", task);
-        System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        if (tasks.isEmpty()) {
+            System.out.println("And with that, our lineup is empty again. What shall we take on next?");
+        } else {
+            System.out.printf("And with that, our lineup now has %d task%s in total!%n",
+                    tasks.size(), tasks.size() == 1 ? "" : "s");
+        }
     }
 
     private void exit() {
@@ -293,7 +268,7 @@ public class Yachiyo {
     private int parseTaskNumber(String arguments) throws YachiyoException {
         if (arguments.isBlank()) {
             throw new YachiyoException(
-                    "Please tell me which task number to use."
+                    "Which task should I mark? Tell me its number!"
             );
         }
 
@@ -301,7 +276,7 @@ public class Yachiyo {
             return Integer.parseInt(arguments);
         } catch (NumberFormatException e) {
             throw new YachiyoException(
-                    "The task number should be a whole number."
+                    "Hmm... task numbers need to be whole numbers, okay?"
             );
         }
     }
