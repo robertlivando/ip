@@ -10,7 +10,8 @@ public class Yachiyo {
             + "  |_|  /_/   \\_\\ \\____| |_| |_| |_____|   |_|    \\___/ \n";
     private static final String GREETING = "Hello! Yachiyo here!\n" + "What shall we accomplish today?";
     private static final String EXIT_MESSAGE = "Until we meet again. Take care!~";
-    private static final String BREAKER = "========================================================";
+    private static final String BREAKER =
+            "===================================================================================";
 
     private final Task[] tasks = new Task[MAX_TASKS];
     private int taskCount = 0;
@@ -38,38 +39,45 @@ public class Yachiyo {
                 String command = inputParts[0];
                 String arguments = inputParts[1];
 
-                switch (command) {
-                    case "mark":
-                        markTask(arguments);
-                        break;
+                try {
+                    switch (command) {
+                        case "mark":
+                            markTask(arguments);
+                            break;
 
-                    case "unmark":
-                        unmarkTask(arguments);
-                        break;
+                        case "unmark":
+                            unmarkTask(arguments);
+                            break;
 
-                    case "list":
-                        listTasks();
-                        break;
+                        case "list":
+                            listTasks();
+                            break;
 
-                    case "todo":
-                        addToDoTask(arguments);
-                        break;
+                        case "todo":
+                            addToDoTask(arguments);
+                            break;
 
-                    case "deadline":
-                        addDeadlineTask(arguments);
-                        break;
+                        case "deadline":
+                            addDeadlineTask(arguments);
+                            break;
 
-                    case "event":
-                        addEventTask(arguments);
-                        break;
+                        case "event":
+                            addEventTask(arguments);
+                            break;
 
-                    case "bye":
-                        exit();
-                        return;
+                        case "bye":
+                            exit();
+                            return;
 
-                    default:
-                        System.out.println("Oh? I don’t recognize that command just yet. Could you try another one?");
+                        default:
+                            throw new YachiyoException(
+                                    "Oh? I don’t recognize that command just yet. Could you try another one?"
+                            );
+                    }
+                } catch (YachiyoException e) {
+                    System.out.println(e.getMessage());
                 }
+
                 System.out.println(BREAKER);
                 System.out.println();
             }
@@ -82,32 +90,24 @@ public class Yachiyo {
         System.out.println(BREAKER);
     }
 
-    private void printInvalidTaskNumberMessage() {
-        System.out.printf("Hmm... choose a task number from 1 to %d, okay?\n", taskCount);
-    }
-
-    private void printTaskIsFullMessage() {
-        System.out.println("Our lineup is completely full! Let's finish something first.");
-    }
-
     private boolean isValidTaskNumber(int taskNumber) {
         return taskNumber >= 1 && taskNumber <= taskCount;
     }
 
-    private void markTask(String arguments) {
+    private void markTask(String arguments) throws YachiyoException {
         // No tasks to mark
         if (taskCount == 0) {
-            System.out.println(
+            throw new YachiyoException(
                     "There are no tasks to mark just yet. Let's add one first!"
             );
-            return;
         }
 
         // Invalid task number
         int taskNumber = parseTaskNumber(arguments);
         if (!isValidTaskNumber(taskNumber)) {
-            printInvalidTaskNumberMessage();
-            return;
+            throw new YachiyoException(
+                    String.format("Hmm... choose a task number from 1 to %d, okay?", taskCount)
+            );
         }
 
         // Task is already marked as completed
@@ -128,20 +128,20 @@ public class Yachiyo {
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
 
-    private void unmarkTask(String arguments) {
+    private void unmarkTask(String arguments) throws YachiyoException {
         // No tasks to unmark
         if (taskCount == 0) {
-            System.out.println(
+            throw new YachiyoException(
                     "There are no tasks to unmark just yet. Let's add one first!"
             );
-            return;
         }
 
         // Invalid task number
         int taskNumber = parseTaskNumber(arguments);
         if (!isValidTaskNumber(taskNumber)) {
-            printInvalidTaskNumberMessage();
-            return;
+            throw new YachiyoException(
+                    String.format("Hmm... choose a task number from 1 to %d, okay?", taskCount)
+            );
         }
 
         // Task is already not marked as completed
@@ -174,15 +174,17 @@ public class Yachiyo {
         }
     }
 
-    private void addToDoTask(String description) {
+    private void addToDoTask(String description) throws YachiyoException {
         if (description.isBlank()) {
-            System.out.println("Hmm, this to-do is missing a description. What shall we call it?");
-            return;
+            throw new YachiyoException(
+                    "Hmm, this to-do is missing a description. What shall we call it?"
+            );
         }
 
         if (taskCount >= tasks.length) {
-            printTaskIsFullMessage();
-            return;
+            throw new YachiyoException(
+                    "Our lineup is completely full! Let's finish something first."
+            );
         }
 
         tasks[taskCount] = new ToDo(description);
@@ -194,23 +196,26 @@ public class Yachiyo {
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
 
-    private void addDeadlineTask(String taskDetails) {
+    private void addDeadlineTask(String taskDetails) throws YachiyoException {
         String[] deadlineParts = taskDetails.split("(?<!\\S)/by(?!\\S)", 2);
         String description = deadlineParts[0].trim();
         if (description.isBlank()) {
-            System.out.println("Hmm, this deadline is missing a description. What shall we call it?");
-            return;
+            throw new YachiyoException(
+                    "Hmm, this deadline is missing a description. What shall we call it?"
+            );
         }
 
         if (deadlineParts.length < 2 || deadlineParts[1].trim().isBlank()) {
-            System.out.println("It seems this task is missing a deadline. When should it be completed?");
-            return;
+            throw new YachiyoException(
+                    "It seems this task is missing a deadline. When should it be completed?"
+            );
         }
         String by = deadlineParts[1].trim();
 
         if (taskCount >= tasks.length) {
-            printTaskIsFullMessage();
-            return;
+            throw new YachiyoException(
+                    "Our lineup is completely full! Let's finish something first."
+            );
         }
 
         tasks[taskCount] = new Deadline(description, by);
@@ -222,36 +227,41 @@ public class Yachiyo {
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
 
-    private void addEventTask(String taskDetails) {
+    private void addEventTask(String taskDetails) throws YachiyoException {
         String[] eventParts = taskDetails.split("(?<!\\S)/from(?!\\S)", 2);
         String description = eventParts[0].trim();
         if (description.isBlank()) {
-            System.out.println("Hmm, this event is missing a description. What shall we call it?");
-            return;
+            throw new YachiyoException(
+                    "Hmm, this event is missing a description. What shall we call it?"
+            );
         }
 
         if (eventParts.length < 2 || eventParts[1].trim().isBlank()) {
-            System.out.println("This event still needs a start time. When should it begin?");
-            return;
+            throw new YachiyoException(
+                    "This event still needs a start time. When should it begin?"
+            );
         }
 
         String durationDetails = eventParts[1].trim();
         String[] durationParts = durationDetails.split("(?<!\\S)/to(?!\\S)", 2);
         String from = durationParts[0].trim();
         if (from.isBlank()) {
-            System.out.println("This event still needs a start time. When should it begin?");
-            return;
+            throw new YachiyoException(
+                    "This event still needs a start time. When should it begin?"
+            );
         }
 
         if (durationParts.length < 2 || durationParts[1].trim().isBlank()) {
-            System.out.println("And when should this event come to an end?");
-            return;
+            throw new YachiyoException(
+                    "And when should this event come to an end?"
+            );
         }
         String to = durationParts[1].trim();
 
         if (taskCount >= tasks.length) {
-            printTaskIsFullMessage();
-            return;
+            throw new YachiyoException(
+                    "Our lineup is completely full! Let's finish something first."
+            );
         }
 
         tasks[taskCount] = new Event(description, from, to);
@@ -268,11 +278,19 @@ public class Yachiyo {
         System.out.println(BREAKER);
     }
 
-    private int parseTaskNumber(String arguments) {
+    private int parseTaskNumber(String arguments) throws YachiyoException {
+        if (arguments.isBlank()) {
+            throw new YachiyoException(
+                    "Please tell me which task number to use."
+            );
+        }
+
         try {
             return Integer.parseInt(arguments);
         } catch (NumberFormatException e) {
-            return -1;
+            throw new YachiyoException(
+                    "The task number should be a whole number."
+            );
         }
     }
 
