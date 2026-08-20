@@ -1,0 +1,20 @@
+public enum CommandType {
+    MARK,
+    UNMARK,
+    LIST,
+    TODO,
+    DEADLINE,
+    EVENT,
+    DELETE,
+    BYE;
+
+    public static CommandType parse(String command) throws YachiyoException {
+        try {
+            return CommandType.valueOf(command.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new YachiyoException(
+                    "Oh? I don’t recognize that command just yet. Could you try another one?"
+            );
+        }
+    }
+}

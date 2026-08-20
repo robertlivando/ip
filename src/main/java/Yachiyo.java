@@ -35,33 +35,30 @@ public class Yachiyo {
                 System.out.println(BREAKER);
 
                 String[] inputParts = separateCommand(userInput);
-                String command = inputParts[0];
                 String arguments = inputParts[1];
 
                 try {
+                    CommandType command = CommandType.parse(inputParts[0]);
+
                     switch (command) {
-                        case "mark" -> markTask(arguments);
+                        case MARK -> markTask(arguments);
 
-                        case "unmark" -> unmarkTask(arguments);
+                        case UNMARK -> unmarkTask(arguments);
 
-                        case "list" -> listTasks();
+                        case LIST -> listTasks();
 
-                        case "todo" -> addToDoTask(arguments);
+                        case TODO -> addToDoTask(arguments);
 
-                        case "deadline" -> addDeadlineTask(arguments);
+                        case DEADLINE -> addDeadlineTask(arguments);
 
-                        case "event" -> addEventTask(arguments);
+                        case EVENT -> addEventTask(arguments);
 
-                        case "delete" -> deleteTask(arguments);
+                        case DELETE -> deleteTask(arguments);
 
-                        case "bye" -> {
+                        case BYE -> {
                             exit();
                             return;
                         }
-
-                        default -> throw new YachiyoException(
-                                "Oh? I don’t recognize that command just yet. Could you try another one?"
-                        );
                     }
                 } catch (YachiyoException e) {
                     System.out.println(e.getMessage());
@@ -268,7 +265,7 @@ public class Yachiyo {
     private int parseTaskNumber(String arguments) throws YachiyoException {
         if (arguments.isBlank()) {
             throw new YachiyoException(
-                    "Which task should I mark? Tell me its number!"
+                    "Which task should I use? Tell me its number!"
             );
         }
 
