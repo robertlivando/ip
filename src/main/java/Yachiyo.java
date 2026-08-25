@@ -1,6 +1,8 @@
 import java.nio.file.Path;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -17,6 +19,9 @@ public class Yachiyo {
     private static final String BREAKER =
             "===================================================================================";
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
+    private static final DateTimeFormatter DEADLINE_INPUT_FORMATTER = DateTimeFormatter
+            .ofPattern("d/M/uuuu HHmm")
+            .withResolverStyle(ResolverStyle.STRICT);
 
     private final List<Task> tasks = new ArrayList<>();
     private final Storage storage = new Storage(DATA_FILE_PATH);
@@ -202,13 +207,14 @@ public class Yachiyo {
                     "It seems this task is missing a deadline. When should it be completed?"
             );
         }
-        String dateText = deadlineParts[1].trim();
-        LocalDate by;
+        String dateTimeText = deadlineParts[1].trim();
+        LocalDateTime by;
         try {
-            by = LocalDate.parse(dateText);
+            by = LocalDateTime.parse(dateTimeText, DEADLINE_INPUT_FORMATTER);
         } catch (DateTimeParseException e) {
             throw new YachiyoException(
-                    "Hmm, please enter the deadline as yyyy-MM-dd, for example 2019-12-02."
+                    "Hmm, please enter the deadline as d/M/yyyy HHmm, "
+                            + "for example 2/12/2019 1800."
             );
         }
 
