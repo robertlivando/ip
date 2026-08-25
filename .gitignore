@@ -19,5 +19,8 @@ _temp/
 /text-ui-test/ACTUAL.TXT
 text-ui-test/EXPECTED-UNIX.TXT
 
+# Runtime task data
+/data/yachiyo.txt
+
 # Binary files
 *.class

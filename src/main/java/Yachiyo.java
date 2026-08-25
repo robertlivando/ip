@@ -13,8 +13,10 @@ public class Yachiyo {
     private static final String EXIT_MESSAGE = "Until we meet again. Take care!~";
     private static final String BREAKER =
             "===================================================================================";
+    private static final String DATA_FILE_PATH = "./data/yachiyo.txt";
 
     private final List<Task> tasks = new ArrayList<>();
+    private final Storage storage = new Storage(DATA_FILE_PATH);
 
     public static void main(String[] args) {
         new Yachiyo().run();
@@ -118,6 +120,7 @@ public class Yachiyo {
 
         // Mark as completed
         task.markAsDone();
+        storage.saveTasks(tasks);
         int remainingCount = getRemainingTaskCount();
         System.out.println("Woohoo! Another task is complete:");
         System.out.printf("- %s\n", task);
@@ -147,6 +150,7 @@ public class Yachiyo {
 
         // Mark as not completed
         task.markAsNotDone();
+        storage.saveTasks(tasks);
         int remainingCount = getRemainingTaskCount();
         System.out.println("Not quite finished? No worries, I've marked it as not done:");
         System.out.printf("- %s\n", task);
@@ -229,8 +233,9 @@ public class Yachiyo {
         addTask(new Event(description, from, to));
     }
 
-    private void addTask(Task task) {
+    private void addTask(Task task) throws YachiyoException {
         tasks.add(task);
+        storage.saveTasks(tasks);
         System.out.println("All right, I've added this to our lineup:");
         System.out.printf("- %s\n", task);
         System.out.printf("And with that, our lineup now has %d task%s in total!%n",
@@ -247,6 +252,7 @@ public class Yachiyo {
 
         int index = getTaskIndex(arguments);
         Task task = tasks.remove(index);
+        storage.saveTasks(tasks);
         System.out.println("All right, I've taken this task out of our lineup:");
         System.out.printf("- %s\n", task);
         if (tasks.isEmpty()) {
