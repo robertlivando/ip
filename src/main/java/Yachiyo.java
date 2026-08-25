@@ -19,7 +19,7 @@ public class Yachiyo {
     private static final String BREAKER =
             "===================================================================================";
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
-    private static final DateTimeFormatter DEADLINE_INPUT_FORMATTER = DateTimeFormatter
+    private static final DateTimeFormatter DATE_TIME_INPUT_FORMATTER = DateTimeFormatter
             .ofPattern("d/M/uuuu HHmm")
             .withResolverStyle(ResolverStyle.STRICT);
 
@@ -208,15 +208,7 @@ public class Yachiyo {
             );
         }
         String dateTimeText = deadlineParts[1].trim();
-        LocalDateTime by;
-        try {
-            by = LocalDateTime.parse(dateTimeText, DEADLINE_INPUT_FORMATTER);
-        } catch (DateTimeParseException e) {
-            throw new YachiyoException(
-                    "Hmm, please enter the deadline as d/M/yyyy HHmm, "
-                            + "for example 2/12/2019 1800."
-            );
-        }
+        LocalDateTime by = parseDateTime(dateTimeText, "deadline");
 
         addTask(new Deadline(description, by));
     }
@@ -238,8 +230,8 @@ public class Yachiyo {
 
         String durationDetails = eventParts[1].trim();
         String[] durationParts = durationDetails.split("(?<!\\S)/to(?!\\S)", 2);
-        String from = durationParts[0].trim();
-        if (from.isBlank()) {
+        String fromText = durationParts[0].trim();
+        if (fromText.isBlank()) {
             throw new YachiyoException(
                     "This event still needs a start time. When should it begin?"
             );
@@ -250,9 +242,35 @@ public class Yachiyo {
                     "And when should this event come to an end?"
             );
         }
-        String to = durationParts[1].trim();
+        String toText = durationParts[1].trim();
+
+        LocalDateTime from = parseDateTime(fromText, "event start");
+        LocalDateTime to = parseDateTime(toText, "event end");
+        if (!to.isAfter(from)) {
+            throw new YachiyoException("Hmm, the event should end after it starts.");
+        }
 
         addTask(new Event(description, from, to));
+    }
+
+    /**
+     * Parses a date-time field using the format accepted in user commands.
+     *
+     * @param dateTimeText date-time text supplied by the user
+     * @param fieldName name used to identify the field in error messages
+     * @return parsed date-time
+     * @throws YachiyoException if the supplied date-time is invalid
+     */
+    private LocalDateTime parseDateTime(String dateTimeText, String fieldName)
+            throws YachiyoException {
+        try {
+            return LocalDateTime.parse(dateTimeText, DATE_TIME_INPUT_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new YachiyoException(
+                    String.format("Hmm, please enter the %s as d/M/yyyy HHmm, "
+                            + "for example 2/12/2019 1800.", fieldName)
+            );
+        }
     }
 
     private void addTask(Task task) throws YachiyoException {

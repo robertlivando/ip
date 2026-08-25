@@ -70,7 +70,8 @@ public class Storage {
             }
             case "EVENT" -> {
                 validateTaskParts(taskParts, 5);
-                yield new Event(taskParts[2], taskParts[3], taskParts[4]);
+                yield new Event(taskParts[2], parseDateTime(taskParts[3]),
+                        parseDateTime(taskParts[4]));
             }
             default -> throw invalidDataException();
         };
