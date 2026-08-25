@@ -24,6 +24,11 @@ public class Yachiyo {
 
     private void run() {
         printIntroduction();
+        try {
+            tasks.addAll(storage.loadTasks());
+        } catch (YachiyoException e) {
+            System.out.println(e.getMessage());
+        }
 
         try (Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {

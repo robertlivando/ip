@@ -2,10 +2,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Saves Yachiyo's task data to the hard disk.
+ * Loads and saves Yachiyo's task data on the hard disk.
  */
 public class Storage {
     private final Path filePath;
@@ -17,6 +18,89 @@ public class Storage {
      */
     public Storage(String filePath) {
         this.filePath = Path.of(filePath);
+    }
+
+    /**
+     * Loads all tasks from the data file. A missing file represents an empty task list.
+     *
+     * @return tasks reconstructed from the data file
+     * @throws YachiyoException if the data file cannot be read or contains invalid task data
+     */
+    public List<Task> loadTasks() throws YachiyoException {
+        if (Files.notExists(filePath)) {
+            return new ArrayList<>();
+        }
+
+        try {
+            List<Task> tasks = new ArrayList<>();
+            for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
+                if (!line.isBlank()) {
+                    tasks.add(parseTask(line));
+                }
+            }
+            return tasks;
+        } catch (IOException e) {
+            throw new YachiyoException("Oh no! I can't seem to load your tasks from the data file.");
+        }
+    }
+
+    /**
+     * Reconstructs one task from its saved file representation.
+     *
+     * @param line saved task data
+     * @return reconstructed task
+     * @throws YachiyoException if the saved task data is malformed
+     */
+    private Task parseTask(String line) throws YachiyoException {
+        String[] taskParts = line.split(" \\| ", -1);
+        if (taskParts.length < 3) {
+            throw invalidDataException();
+        }
+
+        Task task = switch (taskParts[0]) {
+            case "TODO" -> {
+                validateTaskParts(taskParts, 3);
+                yield new ToDo(taskParts[2]);
+            }
+            case "DEADLINE" -> {
+                validateTaskParts(taskParts, 4);
+                yield new Deadline(taskParts[2], taskParts[3]);
+            }
+            case "EVENT" -> {
+                validateTaskParts(taskParts, 5);
+                yield new Event(taskParts[2], taskParts[3], taskParts[4]);
+            }
+            default -> throw invalidDataException();
+        };
+
+        if (taskParts[1].equals("1")) {
+            task.markAsDone();
+        } else if (!taskParts[1].equals("0")) {
+            throw invalidDataException();
+        }
+        return task;
+    }
+
+    /**
+     * Checks that a saved task has the expected number of non-empty fields.
+     *
+     * @param taskParts saved task fields
+     * @param expectedPartCount number of fields required for the task type
+     * @throws YachiyoException if a field is missing or empty
+     */
+    private void validateTaskParts(String[] taskParts, int expectedPartCount) throws YachiyoException {
+        if (taskParts.length != expectedPartCount) {
+            throw invalidDataException();
+        }
+        for (String taskPart : taskParts) {
+            if (taskPart.isBlank()) {
+                throw invalidDataException();
+            }
+        }
+    }
+
+    private YachiyoException invalidDataException() {
+        return new YachiyoException("Oh no! Some task data in the file isn't in the expected format.");
     }
 
     /**
