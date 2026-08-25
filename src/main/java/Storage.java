@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +66,7 @@ public class Storage {
             }
             case "DEADLINE" -> {
                 validateTaskParts(taskParts, 4);
-                yield new Deadline(taskParts[2], taskParts[3]);
+                yield new Deadline(taskParts[2], parseDate(taskParts[3]));
             }
             case "EVENT" -> {
                 validateTaskParts(taskParts, 5);
@@ -79,6 +81,21 @@ public class Storage {
             throw invalidDataException();
         }
         return task;
+    }
+
+    /**
+     * Parses a date stored in the ISO yyyy-MM-dd format.
+     *
+     * @param dateText stored date text
+     * @return parsed date
+     * @throws YachiyoException if the stored date is invalid
+     */
+    private LocalDate parseDate(String dateText) throws YachiyoException {
+        try {
+            return LocalDate.parse(dateText);
+        } catch (DateTimeParseException e) {
+            throw invalidDataException();
+        }
     }
 
     /**

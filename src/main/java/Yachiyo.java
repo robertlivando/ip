@@ -1,4 +1,6 @@
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -200,7 +202,15 @@ public class Yachiyo {
                     "It seems this task is missing a deadline. When should it be completed?"
             );
         }
-        String by = deadlineParts[1].trim();
+        String dateText = deadlineParts[1].trim();
+        LocalDate by;
+        try {
+            by = LocalDate.parse(dateText);
+        } catch (DateTimeParseException e) {
+            throw new YachiyoException(
+                    "Hmm, please enter the deadline as yyyy-MM-dd, for example 2019-12-02."
+            );
+        }
 
         addTask(new Deadline(description, by));
     }
