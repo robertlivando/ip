@@ -16,8 +16,8 @@ public class Storage {
      *
      * @param filePath path of the file used to store tasks
      */
-    public Storage(String filePath) {
-        this.filePath = Path.of(filePath);
+    public Storage(Path filePath) {
+        this.filePath = filePath;
     }
 
     /**

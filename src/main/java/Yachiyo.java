@@ -1,3 +1,4 @@
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -13,7 +14,7 @@ public class Yachiyo {
     private static final String EXIT_MESSAGE = "Until we meet again. Take care!~";
     private static final String BREAKER =
             "===================================================================================";
-    private static final String DATA_FILE_PATH = "./data/yachiyo.txt";
+    private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
 
     private final List<Task> tasks = new ArrayList<>();
     private final Storage storage = new Storage(DATA_FILE_PATH);
