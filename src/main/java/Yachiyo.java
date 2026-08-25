@@ -1,10 +1,12 @@
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Yachiyo {
@@ -22,6 +24,11 @@ public class Yachiyo {
     private static final DateTimeFormatter DATE_TIME_INPUT_FORMATTER = DateTimeFormatter
             .ofPattern("d/M/uuuu HHmm")
             .withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter DATE_INPUT_FORMATTER = DateTimeFormatter
+            .ofPattern("d/M/uuuu")
+            .withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter DATE_DISPLAY_FORMATTER =
+            DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
 
     private final List<Task> tasks = new ArrayList<>();
     private final Storage storage = new Storage(DATA_FILE_PATH);
@@ -67,6 +74,8 @@ public class Yachiyo {
                         case DEADLINE -> addDeadlineTask(arguments);
 
                         case EVENT -> addEventTask(arguments);
+
+                        case ON -> listTasksOnDate(arguments);
 
                         case DELETE -> deleteTask(arguments);
 
@@ -180,6 +189,52 @@ public class Yachiyo {
         System.out.println("Here's everything in our lineup:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.printf("%d.%s\n", i + 1, tasks.get(i));
+        }
+    }
+
+    /**
+     * Prints deadlines and events that occur on the date supplied by the user.
+     * Matching tasks retain their numbers from the complete task list.
+     *
+     * @param dateText date supplied in d/M/yyyy format
+     * @throws YachiyoException if the date is missing or invalid
+     */
+    private void listTasksOnDate(String dateText) throws YachiyoException {
+        if (dateText.isBlank()) {
+            throw new YachiyoException(
+                    "Which date should I check? Please enter it as d/M/yyyy."
+            );
+        }
+
+        LocalDate date;
+        try {
+            date = LocalDate.parse(dateText, DATE_INPUT_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new YachiyoException(
+                    "Hmm, please enter the date as d/M/yyyy, for example 2/12/2026."
+            );
+        }
+
+        boolean hasMatchingTask = false;
+        for (Task task : tasks) {
+            if (task.occursOn(date)) {
+                hasMatchingTask = true;
+                break;
+            }
+        }
+
+        String displayDate = date.format(DATE_DISPLAY_FORMATTER);
+        if (!hasMatchingTask) {
+            System.out.printf("There are no deadlines or events on %s.%n", displayDate);
+            return;
+        }
+
+        System.out.printf("Here are the deadlines and events on %s:%n", displayDate);
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            if (task.occursOn(date)) {
+                System.out.printf("%d.%s%n", i + 1, task);
+            }
         }
     }
 

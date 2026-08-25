@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -28,6 +29,11 @@ public class Deadline extends Task {
     public String toFileFormat() {
         return "DEADLINE | " + super.toFileFormat() + " | "
                 + this.by.format(STORAGE_DATE_TIME_FORMATTER);
+    }
+
+    @Override
+    public boolean occursOn(LocalDate date) {
+        return this.by.toLocalDate().equals(date);
     }
 
     @Override

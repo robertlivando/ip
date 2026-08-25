@@ -5,6 +5,7 @@ public enum CommandType {
     TODO,
     DEADLINE,
     EVENT,
+    ON,
     DELETE,
     BYE;
 

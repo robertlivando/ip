@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -32,6 +33,13 @@ public class Event extends Task {
         return String.format("EVENT | %s | %s | %s", super.toFileFormat(),
                 this.from.format(STORAGE_DATE_TIME_FORMATTER),
                 this.to.format(STORAGE_DATE_TIME_FORMATTER));
+    }
+
+    @Override
+    public boolean occursOn(LocalDate date) {
+        LocalDate startDate = this.from.toLocalDate();
+        LocalDate endDate = this.to.toLocalDate();
+        return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
     @Override
