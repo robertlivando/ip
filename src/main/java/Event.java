@@ -9,6 +9,11 @@ public class Event extends Task {
     }
 
     @Override
+    public String toFileFormat() {
+        return String.format("EVENT | %s | %s | %s", super.toFileFormat(), this.from, this.to);
+    }
+
+    @Override
     public String toString() {
         return String.format("[E]%s (from: %s, to: %s)", super.toString(), this.from, this.to);
     }

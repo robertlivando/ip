@@ -27,6 +27,15 @@ public class Task {
         return isCompleted ? "X" : " ";
     }
 
+    /**
+     * Returns the task fields shared by all task types in the storage file format.
+     *
+     * @return completion status and description separated by delimiters
+     */
+    public String toFileFormat() {
+        return String.format("%d | %s", isCompleted ? 1 : 0, description);
+    }
+
     @Override
     public String toString() {
         return String.format("[%s] %s", this.getStatusIcon(), description);
