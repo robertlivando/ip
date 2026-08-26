@@ -20,7 +20,8 @@ public class Yachiyo {
                 ui.showError(e.getMessage());
             }
 
-            while (ui.hasNextCommand()) {
+            boolean isExit = false;
+            while (!isExit && ui.hasNextCommand()) {
                 String userInput = ui.readCommand().trim();
 
                 // Skip empty inputs
@@ -31,43 +32,16 @@ public class Yachiyo {
                 ui.showCommandStart();
 
                 try {
-                    ParsedCommand command = Parser.parseCommand(userInput);
-                    String arguments = command.arguments();
-
-                    switch (command.type()) {
-                        case MARK -> new MarkCommand(arguments).execute(tasks, ui, storage);
-
-                        case UNMARK -> new UnmarkCommand(arguments).execute(tasks, ui, storage);
-
-                        case LIST -> new ListCommand().execute(tasks, ui, storage);
-
-                        case TODO -> new AddCommand(Parser.parseToDo(arguments))
-                                .execute(tasks, ui, storage);
-
-                        case DEADLINE -> new AddCommand(Parser.parseDeadline(arguments))
-                                .execute(tasks, ui, storage);
-
-                        case EVENT -> new AddCommand(Parser.parseEvent(arguments))
-                                .execute(tasks, ui, storage);
-
-                        case ON -> new FindOnDateCommand(Parser.parseDate(arguments))
-                                .execute(tasks, ui, storage);
-
-                        case DELETE -> new DeleteCommand(arguments).execute(tasks, ui, storage);
-
-                        case BYE -> {
-                            Command exitCommand = new ExitCommand();
-                            exitCommand.execute(tasks, ui, storage);
-                            if (exitCommand.isExit()) {
-                                return;
-                            }
-                        }
-                    }
+                    Command command = Parser.parse(userInput);
+                    command.execute(tasks, ui, storage);
+                    isExit = command.isExit();
                 } catch (YachiyoException e) {
                     ui.showError(e.getMessage());
+                } finally {
+                    if (!isExit) {
+                        ui.showCommandEnd();
+                    }
                 }
-
-                ui.showCommandEnd();
             }
         }
     }

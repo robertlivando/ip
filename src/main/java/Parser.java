@@ -19,17 +19,28 @@ public final class Parser {
     }
 
     /**
-     * Separates a user input line into its command type and arguments.
+     * Interprets a user input line and creates the command that should handle it.
      *
      * @param userInput complete input entered by the user
-     * @return parsed command type and arguments
-     * @throws YachiyoException if the command word is not recognized
+     * @return executable command represented by the input
+     * @throws YachiyoException if the command or its arguments are invalid
      */
-    public static ParsedCommand parseCommand(String userInput) throws YachiyoException {
+    public static Command parse(String userInput) throws YachiyoException {
         String[] parts = userInput.trim().split("\\s+", 2);
         CommandType type = CommandType.parse(parts[0]);
         String arguments = parts.length == 2 ? parts[1].trim() : "";
-        return new ParsedCommand(type, arguments);
+
+        return switch (type) {
+            case MARK -> new MarkCommand(arguments);
+            case UNMARK -> new UnmarkCommand(arguments);
+            case LIST -> new ListCommand();
+            case TODO -> new AddCommand(parseToDo(arguments));
+            case DEADLINE -> new AddCommand(parseDeadline(arguments));
+            case EVENT -> new AddCommand(parseEvent(arguments));
+            case ON -> new FindOnDateCommand(parseDate(arguments));
+            case DELETE -> new DeleteCommand(arguments);
+            case BYE -> new ExitCommand();
+        };
     }
 
     /**
@@ -62,7 +73,7 @@ public final class Parser {
      * @return parsed date
      * @throws YachiyoException if the date is missing or invalid
      */
-    public static LocalDate parseDate(String dateText) throws YachiyoException {
+    private static LocalDate parseDate(String dateText) throws YachiyoException {
         if (dateText.isBlank()) {
             throw new YachiyoException(
                     "Which date should I check? Please enter it as d/M/yyyy."
@@ -85,7 +96,7 @@ public final class Parser {
      * @return parsed to-do task
      * @throws YachiyoException if the description is missing
      */
-    public static ToDo parseToDo(String description) throws YachiyoException {
+    private static ToDo parseToDo(String description) throws YachiyoException {
         if (description.isBlank()) {
             throw new YachiyoException(
                     "Hmm, this to-do is missing a description. What shall we call it?"
@@ -101,7 +112,7 @@ public final class Parser {
      * @return parsed deadline task
      * @throws YachiyoException if a required field is missing or invalid
      */
-    public static Deadline parseDeadline(String taskDetails) throws YachiyoException {
+    private static Deadline parseDeadline(String taskDetails) throws YachiyoException {
         String[] deadlineParts = taskDetails.split("(?<!\\S)/by(?!\\S)", 2);
         String description = deadlineParts[0].trim();
         if (description.isBlank()) {
@@ -127,7 +138,7 @@ public final class Parser {
      * @return parsed event task
      * @throws YachiyoException if a required field is missing or invalid
      */
-    public static Event parseEvent(String taskDetails) throws YachiyoException {
+    private static Event parseEvent(String taskDetails) throws YachiyoException {
         String[] eventParts = taskDetails.split("(?<!\\S)/from(?!\\S)", 2);
         String description = eventParts[0].trim();
         if (description.isBlank()) {
