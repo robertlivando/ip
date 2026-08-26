@@ -1,3 +1,10 @@
+package yachiyo.command;
+
+import yachiyo.exception.YachiyoException;
+import yachiyo.storage.Storage;
+import yachiyo.task.TaskList;
+import yachiyo.ui.Ui;
+
 /**
  * Represents an executable command entered by the user.
  */

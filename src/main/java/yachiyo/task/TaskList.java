@@ -1,6 +1,10 @@
+package yachiyo.task;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import yachiyo.exception.YachiyoException;
 
 /**
  * Manages Yachiyo's collection of tasks and operations on that collection.

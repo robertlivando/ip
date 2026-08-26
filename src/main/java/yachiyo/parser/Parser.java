@@ -1,8 +1,23 @@
+package yachiyo.parser;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+
+import yachiyo.command.AddCommand;
+import yachiyo.command.Command;
+import yachiyo.command.DeleteCommand;
+import yachiyo.command.ExitCommand;
+import yachiyo.command.FindOnDateCommand;
+import yachiyo.command.ListCommand;
+import yachiyo.command.MarkCommand;
+import yachiyo.command.UnmarkCommand;
+import yachiyo.exception.YachiyoException;
+import yachiyo.task.Deadline;
+import yachiyo.task.Event;
+import yachiyo.task.ToDo;
 
 /**
  * Interprets user commands and converts their arguments into application objects.
@@ -31,14 +46,14 @@ public final class Parser {
         String arguments = parts.length == 2 ? parts[1].trim() : "";
 
         return switch (type) {
-            case MARK -> new MarkCommand(arguments);
-            case UNMARK -> new UnmarkCommand(arguments);
+            case MARK -> new MarkCommand(parseTaskNumber(arguments));
+            case UNMARK -> new UnmarkCommand(parseTaskNumber(arguments));
             case LIST -> new ListCommand();
             case TODO -> new AddCommand(parseToDo(arguments));
             case DEADLINE -> new AddCommand(parseDeadline(arguments));
             case EVENT -> new AddCommand(parseEvent(arguments));
             case ON -> new FindOnDateCommand(parseDate(arguments));
-            case DELETE -> new DeleteCommand(arguments);
+            case DELETE -> new DeleteCommand(parseTaskNumber(arguments));
             case BYE -> new ExitCommand();
         };
     }
@@ -50,7 +65,7 @@ public final class Parser {
      * @return parsed one-based task number
      * @throws YachiyoException if the task number is missing or is not a whole number
      */
-    public static int parseTaskNumber(String arguments) throws YachiyoException {
+    private static int parseTaskNumber(String arguments) throws YachiyoException {
         if (arguments.isBlank()) {
             throw new YachiyoException(
                     "Which task should I use? Tell me its number!"

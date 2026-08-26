@@ -1,16 +1,24 @@
+package yachiyo.command;
+
+import yachiyo.exception.YachiyoException;
+import yachiyo.storage.Storage;
+import yachiyo.task.Task;
+import yachiyo.task.TaskList;
+import yachiyo.ui.Ui;
+
 /**
  * Deletes a selected task and saves the updated list.
  */
 public class DeleteCommand extends Command {
-    private final String arguments;
+    private final int taskNumber;
 
     /**
-     * Creates a command using the task-number arguments supplied by the user.
+     * Creates a command that deletes the task with the supplied number.
      *
-     * @param arguments text expected to contain a task number
+     * @param taskNumber one-based number of the task to delete
      */
-    public DeleteCommand(String arguments) {
-        this.arguments = arguments;
+    public DeleteCommand(int taskNumber) {
+        this.taskNumber = taskNumber;
     }
 
     /**
@@ -29,7 +37,6 @@ public class DeleteCommand extends Command {
             );
         }
 
-        int taskNumber = Parser.parseTaskNumber(arguments);
         Task task = tasks.delete(taskNumber);
         storage.saveTasks(tasks.getTasks());
         ui.showTaskDeleted(task, tasks.size());

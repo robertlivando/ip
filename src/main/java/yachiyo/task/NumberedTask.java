@@ -1,3 +1,5 @@
+package yachiyo.task;
+
 /**
  * Associates a task with its one-based number in the complete task list.
  *

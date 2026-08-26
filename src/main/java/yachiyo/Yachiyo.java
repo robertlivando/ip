@@ -1,4 +1,13 @@
+package yachiyo;
+
 import java.nio.file.Path;
+
+import yachiyo.command.Command;
+import yachiyo.exception.YachiyoException;
+import yachiyo.parser.Parser;
+import yachiyo.storage.Storage;
+import yachiyo.task.TaskList;
+import yachiyo.ui.Ui;
 
 public class Yachiyo {
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");

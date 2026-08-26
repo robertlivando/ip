@@ -1,8 +1,12 @@
+package yachiyo.ui;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+
+import yachiyo.task.Task;
 
 /**
  * Handles input from and output to the user.
