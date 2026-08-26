@@ -1,6 +1,4 @@
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.List;
 
 public class Yachiyo {
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
@@ -49,7 +47,8 @@ public class Yachiyo {
 
                         case EVENT -> addTask(Parser.parseEvent(arguments));
 
-                        case ON -> listTasksOnDate(Parser.parseDate(arguments));
+                        case ON -> new FindOnDateCommand(Parser.parseDate(arguments))
+                                .execute(tasks, ui, storage);
 
                         case DELETE -> deleteTask(arguments);
 
@@ -112,26 +111,6 @@ public class Yachiyo {
         storage.saveTasks(tasks.getTasks());
         int remainingCount = tasks.getRemainingTaskCount();
         ui.showTaskUnmarked(task, remainingCount);
-    }
-
-    /**
-     * Prints deadlines and events that occur on the date supplied by the user.
-     * Matching tasks retain their numbers from the complete task list.
-     *
-     * @param date date to check
-     */
-    private void listTasksOnDate(LocalDate date) {
-        List<NumberedTask> matchingTasks = tasks.getTasksOnDate(date);
-
-        if (matchingTasks.isEmpty()) {
-            ui.showNoTasksOnDate(date);
-            return;
-        }
-
-        ui.showTasksOnDateHeader(date);
-        for (NumberedTask numberedTask : matchingTasks) {
-            ui.showIndexedTask(numberedTask.number(), numberedTask.task());
-        }
     }
 
     private void addTask(Task task) throws YachiyoException {
