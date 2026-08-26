@@ -41,7 +41,7 @@ public class Yachiyo {
 
                         case UNMARK -> unmarkTask(arguments);
 
-                        case LIST -> listTasks();
+                        case LIST -> new ListCommand().execute(tasks, ui, storage);
 
                         case TODO -> addTask(Parser.parseToDo(arguments));
 
@@ -54,8 +54,11 @@ public class Yachiyo {
                         case DELETE -> deleteTask(arguments);
 
                         case BYE -> {
-                            exit();
-                            return;
+                            Command exitCommand = new ExitCommand();
+                            exitCommand.execute(tasks, ui, storage);
+                            if (exitCommand.isExit()) {
+                                return;
+                            }
                         }
                     }
                 } catch (YachiyoException e) {
@@ -111,10 +114,6 @@ public class Yachiyo {
         ui.showTaskUnmarked(task, remainingCount);
     }
 
-    private void listTasks() {
-        ui.showTaskList(tasks.getTasks());
-    }
-
     /**
      * Prints deadlines and events that occur on the date supplied by the user.
      * Matching tasks retain their numbers from the complete task list.
@@ -153,10 +152,6 @@ public class Yachiyo {
         Task task = tasks.delete(taskNumber);
         storage.saveTasks(tasks.getTasks());
         ui.showTaskDeleted(task, tasks.size());
-    }
-
-    private void exit() {
-        ui.showExit();
     }
 
 }
