@@ -1,12 +1,11 @@
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Yachiyo {
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
 
-    private final List<Task> tasks = new ArrayList<>();
+    private TaskList tasks = new TaskList();
     private final Storage storage = new Storage(DATA_FILE_PATH);
     private final Ui ui = new Ui();
 
@@ -18,7 +17,7 @@ public class Yachiyo {
         try (Ui ui = this.ui) {
             ui.showIntroduction();
             try {
-                tasks.addAll(storage.loadTasks());
+                tasks = new TaskList(storage.loadTasks());
             } catch (YachiyoException e) {
                 ui.showError(e.getMessage());
             }
@@ -68,29 +67,6 @@ public class Yachiyo {
         }
     }
 
-    private boolean isValidTaskNumber(int taskNumber) {
-        return taskNumber >= 1 && taskNumber <= tasks.size();
-    }
-
-    private int getRemainingTaskCount() {
-        int remainingCount = 0;
-        for (Task task : tasks) {
-            if (!task.isCompleted()) {
-                remainingCount++;
-            }
-        }
-        return remainingCount;
-    }
-
-    private int getTaskIndex(int taskNumber) throws YachiyoException {
-        if (!isValidTaskNumber(taskNumber)) {
-            throw new YachiyoException(
-                    String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
-            );
-        }
-        return taskNumber - 1;
-    }
-
     private void markTask(String arguments) throws YachiyoException {
         // No tasks to mark
         if (tasks.isEmpty()) {
@@ -99,8 +75,8 @@ public class Yachiyo {
             );
         }
 
-        int index = getTaskIndex(Parser.parseTaskNumber(arguments));
-        Task task = tasks.get(index);
+        int taskNumber = Parser.parseTaskNumber(arguments);
+        Task task = tasks.get(taskNumber);
         if (task.isCompleted()) {
             ui.showAlreadyMarked(task);
             return;
@@ -108,8 +84,8 @@ public class Yachiyo {
 
         // Mark as completed
         task.markAsDone();
-        storage.saveTasks(tasks);
-        int remainingCount = getRemainingTaskCount();
+        storage.saveTasks(tasks.getTasks());
+        int remainingCount = tasks.getRemainingTaskCount();
         ui.showTaskMarked(task, remainingCount);
     }
 
@@ -121,8 +97,8 @@ public class Yachiyo {
             );
         }
 
-        int index = getTaskIndex(Parser.parseTaskNumber(arguments));
-        Task task = tasks.get(index);
+        int taskNumber = Parser.parseTaskNumber(arguments);
+        Task task = tasks.get(taskNumber);
         if (!task.isCompleted()) {
             ui.showAlreadyUnmarked(task);
             return;
@@ -130,13 +106,13 @@ public class Yachiyo {
 
         // Mark as not completed
         task.markAsNotDone();
-        storage.saveTasks(tasks);
-        int remainingCount = getRemainingTaskCount();
+        storage.saveTasks(tasks.getTasks());
+        int remainingCount = tasks.getRemainingTaskCount();
         ui.showTaskUnmarked(task, remainingCount);
     }
 
     private void listTasks() {
-        ui.showTaskList(tasks);
+        ui.showTaskList(tasks.getTasks());
     }
 
     /**
@@ -146,31 +122,22 @@ public class Yachiyo {
      * @param date date to check
      */
     private void listTasksOnDate(LocalDate date) {
-        boolean hasMatchingTask = false;
-        for (Task task : tasks) {
-            if (task.occursOn(date)) {
-                hasMatchingTask = true;
-                break;
-            }
-        }
+        List<NumberedTask> matchingTasks = tasks.getTasksOnDate(date);
 
-        if (!hasMatchingTask) {
+        if (matchingTasks.isEmpty()) {
             ui.showNoTasksOnDate(date);
             return;
         }
 
         ui.showTasksOnDateHeader(date);
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            if (task.occursOn(date)) {
-                ui.showIndexedTask(i + 1, task);
-            }
+        for (NumberedTask numberedTask : matchingTasks) {
+            ui.showIndexedTask(numberedTask.number(), numberedTask.task());
         }
     }
 
     private void addTask(Task task) throws YachiyoException {
         tasks.add(task);
-        storage.saveTasks(tasks);
+        storage.saveTasks(tasks.getTasks());
         ui.showTaskAdded(task, tasks.size());
     }
 
@@ -182,9 +149,9 @@ public class Yachiyo {
             );
         }
 
-        int index = getTaskIndex(Parser.parseTaskNumber(arguments));
-        Task task = tasks.remove(index);
-        storage.saveTasks(tasks);
+        int taskNumber = Parser.parseTaskNumber(arguments);
+        Task task = tasks.delete(taskNumber);
+        storage.saveTasks(tasks.getTasks());
         ui.showTaskDeleted(task, tasks.size());
     }
 
