@@ -35,22 +35,25 @@ public class Yachiyo {
                     String arguments = command.arguments();
 
                     switch (command.type()) {
-                        case MARK -> markTask(arguments);
+                        case MARK -> new MarkCommand(arguments).execute(tasks, ui, storage);
 
-                        case UNMARK -> unmarkTask(arguments);
+                        case UNMARK -> new UnmarkCommand(arguments).execute(tasks, ui, storage);
 
                         case LIST -> new ListCommand().execute(tasks, ui, storage);
 
-                        case TODO -> addTask(Parser.parseToDo(arguments));
+                        case TODO -> new AddCommand(Parser.parseToDo(arguments))
+                                .execute(tasks, ui, storage);
 
-                        case DEADLINE -> addTask(Parser.parseDeadline(arguments));
+                        case DEADLINE -> new AddCommand(Parser.parseDeadline(arguments))
+                                .execute(tasks, ui, storage);
 
-                        case EVENT -> addTask(Parser.parseEvent(arguments));
+                        case EVENT -> new AddCommand(Parser.parseEvent(arguments))
+                                .execute(tasks, ui, storage);
 
                         case ON -> new FindOnDateCommand(Parser.parseDate(arguments))
                                 .execute(tasks, ui, storage);
 
-                        case DELETE -> deleteTask(arguments);
+                        case DELETE -> new DeleteCommand(arguments).execute(tasks, ui, storage);
 
                         case BYE -> {
                             Command exitCommand = new ExitCommand();
@@ -68,69 +71,4 @@ public class Yachiyo {
             }
         }
     }
-
-    private void markTask(String arguments) throws YachiyoException {
-        // No tasks to mark
-        if (tasks.isEmpty()) {
-            throw new YachiyoException(
-                    "There are no tasks to mark just yet. Let's add one first!"
-            );
-        }
-
-        int taskNumber = Parser.parseTaskNumber(arguments);
-        Task task = tasks.get(taskNumber);
-        if (task.isCompleted()) {
-            ui.showAlreadyMarked(task);
-            return;
-        }
-
-        // Mark as completed
-        task.markAsDone();
-        storage.saveTasks(tasks.getTasks());
-        int remainingCount = tasks.getRemainingTaskCount();
-        ui.showTaskMarked(task, remainingCount);
-    }
-
-    private void unmarkTask(String arguments) throws YachiyoException {
-        // No tasks to unmark
-        if (tasks.isEmpty()) {
-            throw new YachiyoException(
-                    "There are no tasks to unmark just yet. Let's add one first!"
-            );
-        }
-
-        int taskNumber = Parser.parseTaskNumber(arguments);
-        Task task = tasks.get(taskNumber);
-        if (!task.isCompleted()) {
-            ui.showAlreadyUnmarked(task);
-            return;
-        }
-
-        // Mark as not completed
-        task.markAsNotDone();
-        storage.saveTasks(tasks.getTasks());
-        int remainingCount = tasks.getRemainingTaskCount();
-        ui.showTaskUnmarked(task, remainingCount);
-    }
-
-    private void addTask(Task task) throws YachiyoException {
-        tasks.add(task);
-        storage.saveTasks(tasks.getTasks());
-        ui.showTaskAdded(task, tasks.size());
-    }
-
-    private void deleteTask(String arguments) throws YachiyoException {
-        // No tasks to delete
-        if (tasks.isEmpty()) {
-            throw new YachiyoException(
-                    "There are no tasks to delete just yet. Let's add one first!"
-            );
-        }
-
-        int taskNumber = Parser.parseTaskNumber(arguments);
-        Task task = tasks.delete(taskNumber);
-        storage.saveTasks(tasks.getTasks());
-        ui.showTaskDeleted(task, tasks.size());
-    }
-
 }
