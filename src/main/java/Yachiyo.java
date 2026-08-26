@@ -6,20 +6,8 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
 
 public class Yachiyo {
-    private static final String BANNER =
-            "__   __    _      ____   _   _   _____  __   __   ___  \n"
-            + "\\ \\ / /   / \\    / ___| | | | | |_   _| \\ \\ / /  / _ \\ \n"
-            + " \\ V /   / _ \\  | |     | |_| |   | |    \\ V /  | | | |\n"
-            + "  | |   / ___ \\ | |___  |  _  |  _| |_    | |   | |_| |\n"
-            + "  |_|  /_/   \\_\\ \\____| |_| |_| |_____|   |_|    \\___/ \n";
-    private static final String GREETING = "Hello! Yachiyo here!\n" + "What shall we accomplish today?";
-    private static final String EXIT_MESSAGE = "Until we meet again. Take care!~";
-    private static final String BREAKER =
-            "===================================================================================";
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
     private static final DateTimeFormatter DATE_TIME_INPUT_FORMATTER = DateTimeFormatter
             .ofPattern("d/M/uuuu HHmm")
@@ -27,34 +15,33 @@ public class Yachiyo {
     private static final DateTimeFormatter DATE_INPUT_FORMATTER = DateTimeFormatter
             .ofPattern("d/M/uuuu")
             .withResolverStyle(ResolverStyle.STRICT);
-    private static final DateTimeFormatter DATE_DISPLAY_FORMATTER =
-            DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
 
     private final List<Task> tasks = new ArrayList<>();
     private final Storage storage = new Storage(DATA_FILE_PATH);
+    private final Ui ui = new Ui();
 
     public static void main(String[] args) {
         new Yachiyo().run();
     }
 
     private void run() {
-        printIntroduction();
-        try {
-            tasks.addAll(storage.loadTasks());
-        } catch (YachiyoException e) {
-            System.out.println(e.getMessage());
-        }
+        try (Ui ui = this.ui) {
+            ui.showIntroduction();
+            try {
+                tasks.addAll(storage.loadTasks());
+            } catch (YachiyoException e) {
+                ui.showError(e.getMessage());
+            }
 
-        try (Scanner scanner = new Scanner(System.in)) {
-            while (scanner.hasNextLine()) {
-                String userInput = scanner.nextLine().trim();
+            while (ui.hasNextCommand()) {
+                String userInput = ui.readCommand().trim();
 
                 // Skip empty inputs
                 if (userInput.isEmpty()) {
                     continue;
                 }
 
-                System.out.println(BREAKER);
+                ui.showCommandStart();
 
                 String[] inputParts = separateCommand(userInput);
                 String arguments = inputParts[1];
@@ -85,19 +72,12 @@ public class Yachiyo {
                         }
                     }
                 } catch (YachiyoException e) {
-                    System.out.println(e.getMessage());
+                    ui.showError(e.getMessage());
                 }
 
-                System.out.println(BREAKER);
-                System.out.println();
+                ui.showCommandEnd();
             }
         }
-    }
-
-    private void printIntroduction() {
-        System.out.println(BANNER);
-        System.out.println(GREETING);
-        System.out.println(BREAKER);
     }
 
     private boolean isValidTaskNumber(int taskNumber) {
@@ -135,8 +115,7 @@ public class Yachiyo {
         int index = getTaskIndex(arguments);
         Task task = tasks.get(index);
         if (task.isCompleted()) {
-            System.out.println("This task is already shining as complete!");
-            System.out.printf("- %s\n", task);
+            ui.showAlreadyMarked(task);
             return;
         }
 
@@ -144,14 +123,7 @@ public class Yachiyo {
         task.markAsDone();
         storage.saveTasks(tasks);
         int remainingCount = getRemainingTaskCount();
-        System.out.println("Woohoo! Another task is complete:");
-        System.out.printf("- %s\n", task);
-        if (remainingCount == 0) {
-            System.out.println("Wonderful—everything in our lineup is complete!");
-        } else {
-            System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
-                    remainingCount, remainingCount == 1 ? "" : "s");
-        }
+        ui.showTaskMarked(task, remainingCount);
     }
 
     private void unmarkTask(String arguments) throws YachiyoException {
@@ -165,8 +137,7 @@ public class Yachiyo {
         int index = getTaskIndex(arguments);
         Task task = tasks.get(index);
         if (!task.isCompleted()) {
-            System.out.println("No changes needed-this task is already waiting in our lineup!");
-            System.out.printf("- %s\n", task);
+            ui.showAlreadyUnmarked(task);
             return;
         }
 
@@ -174,22 +145,11 @@ public class Yachiyo {
         task.markAsNotDone();
         storage.saveTasks(tasks);
         int remainingCount = getRemainingTaskCount();
-        System.out.println("Not quite finished? No worries, I've marked it as not done:");
-        System.out.printf("- %s\n", task);
-        System.out.printf("Our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        ui.showTaskUnmarked(task, remainingCount);
     }
 
     private void listTasks() {
-        if (tasks.isEmpty()) {
-            System.out.println("Our lineup is empty for now. What shall we take on next?");
-            return;
-        }
-
-        System.out.println("Here's everything in our lineup:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.printf("%d.%s\n", i + 1, tasks.get(i));
-        }
+        ui.showTaskList(tasks);
     }
 
     /**
@@ -223,17 +183,16 @@ public class Yachiyo {
             }
         }
 
-        String displayDate = date.format(DATE_DISPLAY_FORMATTER);
         if (!hasMatchingTask) {
-            System.out.printf("There are no deadlines or events on %s.%n", displayDate);
+            ui.showNoTasksOnDate(date);
             return;
         }
 
-        System.out.printf("Here are the deadlines and events on %s:%n", displayDate);
+        ui.showTasksOnDateHeader(date);
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
             if (task.occursOn(date)) {
-                System.out.printf("%d.%s%n", i + 1, task);
+                ui.showIndexedTask(i + 1, task);
             }
         }
     }
@@ -331,10 +290,7 @@ public class Yachiyo {
     private void addTask(Task task) throws YachiyoException {
         tasks.add(task);
         storage.saveTasks(tasks);
-        System.out.println("All right, I've added this to our lineup:");
-        System.out.printf("- %s\n", task);
-        System.out.printf("And with that, our lineup now has %d task%s in total!%n",
-                tasks.size(), tasks.size() == 1 ? "" : "s");
+        ui.showTaskAdded(task, tasks.size());
     }
 
     private void deleteTask(String arguments) throws YachiyoException {
@@ -348,19 +304,11 @@ public class Yachiyo {
         int index = getTaskIndex(arguments);
         Task task = tasks.remove(index);
         storage.saveTasks(tasks);
-        System.out.println("All right, I've taken this task out of our lineup:");
-        System.out.printf("- %s\n", task);
-        if (tasks.isEmpty()) {
-            System.out.println("And with that, our lineup is empty again. What shall we take on next?");
-        } else {
-            System.out.printf("And with that, our lineup now has %d task%s in total!%n",
-                    tasks.size(), tasks.size() == 1 ? "" : "s");
-        }
+        ui.showTaskDeleted(task, tasks.size());
     }
 
     private void exit() {
-        System.out.println(EXIT_MESSAGE);
-        System.out.println(BREAKER);
+        ui.showExit();
     }
 
     private int parseTaskNumber(String arguments) throws YachiyoException {
