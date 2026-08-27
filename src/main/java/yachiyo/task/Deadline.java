@@ -27,17 +27,33 @@ public class Deadline extends Task {
         this.by = by;
     }
 
+    /**
+     * Returns this deadline in the format used by the storage file.
+     *
+     * @return Stored deadline representation.
+     */
     @Override
     public String toFileFormat() {
         return "DEADLINE | " + super.toFileFormat() + " | "
                 + this.by.format(STORAGE_DATE_TIME_FORMATTER);
     }
 
+    /**
+     * Returns whether this deadline falls on the specified date.
+     *
+     * @param date Date to check.
+     * @return True if the deadline falls on the date; false otherwise.
+     */
     @Override
     public boolean occursOn(LocalDate date) {
         return this.by.toLocalDate().equals(date);
     }
 
+    /**
+     * Returns this deadline in its user-facing display format.
+     *
+     * @return Formatted deadline description, status, and due date-time.
+     */
     @Override
     public String toString() {
         return "[D]" + super.toString() + " (by: "
