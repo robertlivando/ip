@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Task {
     private final String description;
     private boolean isCompleted;
@@ -34,6 +36,17 @@ public class Task {
      */
     public String toFileFormat() {
         return String.format("%d | %s", isCompleted ? 1 : 0, description);
+    }
+
+    /**
+     * Checks whether this task occurs on the specified date.
+     * Tasks without a date do not occur on any particular date by default.
+     *
+     * @param date date to check
+     * @return true if this task occurs on the date, otherwise false
+     */
+    public boolean occursOn(LocalDate date) {
+        return false;
     }
 
     @Override
