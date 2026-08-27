@@ -104,6 +104,24 @@ public class Ui implements AutoCloseable {
     }
 
     /**
+     * Displays the heading for tasks whose descriptions match a keyword.
+     *
+     * @param keyword Keyword matched by the displayed tasks.
+     */
+    public void showMatchingTasksHeader(String keyword) {
+        System.out.printf("Here are the tasks in our lineup matching \"%s\":%n", keyword);
+    }
+
+    /**
+     * Reports that no task descriptions match a keyword.
+     *
+     * @param keyword Keyword searched by the user.
+     */
+    public void showNoMatchingTasks(String keyword) {
+        System.out.printf("I couldn't find any tasks matching \"%s\".%n", keyword);
+    }
+
+    /**
      * Displays the heading for tasks occurring on a specified date.
      *
      * @param date date whose matching tasks will be displayed

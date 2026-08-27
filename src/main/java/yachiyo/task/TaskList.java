@@ -3,6 +3,7 @@ package yachiyo.task;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import yachiyo.exception.YachiyoException;
 
@@ -91,6 +92,27 @@ public class TaskList {
             }
         }
         return remainingCount;
+    }
+
+    /**
+     * Returns tasks whose descriptions contain the specified keyword, retaining their original
+     * task numbers. Matching is case-insensitive.
+     *
+     * @param keyword Keyword to match against task descriptions.
+     * @return Matching numbered tasks.
+     */
+    public List<NumberedTask> findTasks(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<NumberedTask> matchingTasks = new ArrayList<>();
+
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            String normalizedDescription = task.getDescription().toLowerCase(Locale.ROOT);
+            if (normalizedDescription.contains(normalizedKeyword)) {
+                matchingTasks.add(new NumberedTask(i + 1, task));
+            }
+        }
+        return List.copyOf(matchingTasks);
     }
 
     /**
