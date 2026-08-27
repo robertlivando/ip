@@ -9,6 +9,9 @@ import yachiyo.storage.Storage;
 import yachiyo.task.TaskList;
 import yachiyo.ui.Ui;
 
+/**
+ * Runs the Yachiyo task management application.
+ */
 public class Yachiyo {
     private static final Path DATA_FILE_PATH = Path.of("data", "yachiyo.txt");
 
@@ -16,10 +19,18 @@ public class Yachiyo {
     private final Storage storage = new Storage(DATA_FILE_PATH);
     private final Ui ui = new Ui();
 
+    /**
+     * Starts the Yachiyo application.
+     *
+     * @param args Command-line arguments; not used.
+     */
     public static void main(String[] args) {
         new Yachiyo().run();
     }
 
+    /**
+     * Runs the command-processing loop until the user exits or input ends.
+     */
     private void run() {
         try (Ui ui = this.ui) {
             ui.showIntroduction();

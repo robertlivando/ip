@@ -2,10 +2,18 @@ package yachiyo.task;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a task with a description and completion status.
+ */
 public abstract class Task {
     private final String description;
     private boolean isCompleted;
 
+    /**
+     * Creates an incomplete task with the specified description.
+     *
+     * @param description Description of the task.
+     */
     public Task(String description) {
         this.description = description;
         this.isCompleted = false;
@@ -19,10 +27,16 @@ public abstract class Task {
         return this.isCompleted;
     }
 
+    /**
+     * Marks this task as completed.
+     */
     public void markAsDone() {
         this.isCompleted = true;
     }
 
+    /**
+     * Marks this task as incomplete.
+     */
     public void markAsNotDone() {
         this.isCompleted = false;
     }
@@ -34,7 +48,7 @@ public abstract class Task {
     /**
      * Returns the task fields shared by all task types in the storage file format.
      *
-     * @return completion status and description separated by delimiters
+     * @return completion status and description separated by delimiters.
      */
     public String toFileFormat() {
         return String.format("%d | %s", isCompleted ? 1 : 0, description);
@@ -44,8 +58,8 @@ public abstract class Task {
      * Checks whether this task occurs on the specified date.
      * Tasks without a date do not occur on any particular date by default.
      *
-     * @param date date to check
-     * @return true if this task occurs on the date, otherwise false
+     * @param date date to check.
+     * @return true if this task occurs on the date, otherwise false.
      */
     public boolean occursOn(LocalDate date) {
         return false;

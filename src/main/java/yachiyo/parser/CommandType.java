@@ -2,6 +2,9 @@ package yachiyo.parser;
 
 import yachiyo.exception.YachiyoException;
 
+/**
+ * Represents a command word supported by Yachiyo.
+ */
 public enum CommandType {
     MARK,
     UNMARK,
@@ -13,6 +16,13 @@ public enum CommandType {
     DELETE,
     BYE;
 
+    /**
+     * Returns the command type represented by the specified command word.
+     *
+     * @param command Command word to parse.
+     * @return Matching command type.
+     * @throws YachiyoException If the command word is not supported.
+     */
     public static CommandType parse(String command) throws YachiyoException {
         try {
             return CommandType.valueOf(command.toUpperCase());

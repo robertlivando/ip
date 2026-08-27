@@ -20,9 +20,9 @@ public class Event extends Task {
     /**
      * Creates an event with the given description, start date-time, and end date-time.
      *
-     * @param description description of the event
-     * @param from date and time when the event starts
-     * @param to date and time when the event ends
+     * @param description description of the event.
+     * @param from date and time when the event starts.
+     * @param to date and time when the event ends.
      */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
@@ -30,6 +30,11 @@ public class Event extends Task {
         this.to = to;
     }
 
+    /**
+     * Returns this event in the format used by the storage file.
+     *
+     * @return Stored event representation.
+     */
     @Override
     public String toFileFormat() {
         return String.format("EVENT | %s | %s | %s", super.toFileFormat(),
@@ -44,6 +49,11 @@ public class Event extends Task {
         return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
+    /**
+     * Returns this event in its user-facing display format.
+     *
+     * @return Formatted event description, status, and duration.
+     */
     @Override
     public String toString() {
         return String.format("[E]%s (from: %s, to: %s)", super.toString(),

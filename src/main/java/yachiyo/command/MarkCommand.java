@@ -15,7 +15,7 @@ public class MarkCommand extends Command {
     /**
      * Creates a command that marks the task with the supplied number.
      *
-     * @param taskNumber one-based number of the task to mark
+     * @param taskNumber one-based number of the task to mark.
      */
     public MarkCommand(int taskNumber) {
         this.taskNumber = taskNumber;
@@ -24,10 +24,10 @@ public class MarkCommand extends Command {
     /**
      * Marks the selected task and displays its updated completion state.
      *
-     * @param tasks task list containing the selected task
-     * @param ui user interface used to display the result
-     * @param storage storage used to persist the updated list
-     * @throws YachiyoException if no task can be selected or the list cannot be saved
+     * @param tasks task list containing the selected task.
+     * @param ui user interface used to display the result.
+     * @param storage storage used to persist the updated list.
+     * @throws YachiyoException if no task can be selected or the list cannot be saved.
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws YachiyoException {
