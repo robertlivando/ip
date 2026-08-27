@@ -63,7 +63,7 @@ public abstract class Task {
     /**
      * Returns the task fields shared by all task types in the storage file format.
      *
-     * @return completion status and description separated by delimiters
+     * @return completion status and description separated by delimiters.
      */
     public String toFileFormat() {
         return String.format("%d | %s", isCompleted ? 1 : 0, description);
@@ -73,8 +73,8 @@ public abstract class Task {
      * Checks whether this task occurs on the specified date.
      * Tasks without a date do not occur on any particular date by default.
      *
-     * @param date date to check
-     * @return true if this task occurs on the date, otherwise false
+     * @param date date to check.
+     * @return true if this task occurs on the date, otherwise false.
      */
     public boolean occursOn(LocalDate date) {
         return false;

@@ -15,7 +15,7 @@ public class DeleteCommand extends Command {
     /**
      * Creates a command that deletes the task with the supplied number.
      *
-     * @param taskNumber one-based number of the task to delete
+     * @param taskNumber one-based number of the task to delete.
      */
     public DeleteCommand(int taskNumber) {
         this.taskNumber = taskNumber;
@@ -24,10 +24,10 @@ public class DeleteCommand extends Command {
     /**
      * Deletes the selected task, persists the updated list, and displays confirmation.
      *
-     * @param tasks task list from which to delete
-     * @param ui user interface used to display confirmation
-     * @param storage storage used to persist the updated list
-     * @throws YachiyoException if no task can be selected or the list cannot be saved
+     * @param tasks task list from which to delete.
+     * @param ui user interface used to display confirmation.
+     * @param storage storage used to persist the updated list.
+     * @throws YachiyoException if no task can be selected or the list cannot be saved.
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws YachiyoException {

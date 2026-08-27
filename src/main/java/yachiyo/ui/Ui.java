@@ -38,7 +38,7 @@ public class Ui implements AutoCloseable {
     /**
      * Checks whether another line of user input is available.
      *
-     * @return true if another command can be read
+     * @return true if another command can be read.
      */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
@@ -47,7 +47,7 @@ public class Ui implements AutoCloseable {
     /**
      * Reads the next command entered by the user.
      *
-     * @return the next input line
+     * @return the next input line.
      */
     public String readCommand() {
         return scanner.nextLine();
@@ -80,7 +80,7 @@ public class Ui implements AutoCloseable {
     /**
      * Displays an error message to the user.
      *
-     * @param message explanation of the error
+     * @param message explanation of the error.
      */
     public void showError(String message) {
         System.out.println(message);
@@ -89,7 +89,7 @@ public class Ui implements AutoCloseable {
     /**
      * Displays all tasks with their one-based task numbers.
      *
-     * @param tasks tasks to display
+     * @param tasks tasks to display.
      */
     public void showTaskList(List<Task> tasks) {
         if (tasks.isEmpty()) {
@@ -106,7 +106,7 @@ public class Ui implements AutoCloseable {
     /**
      * Displays the heading for tasks occurring on a specified date.
      *
-     * @param date date whose matching tasks will be displayed
+     * @param date date whose matching tasks will be displayed.
      */
     public void showTasksOnDateHeader(LocalDate date) {
         System.out.printf("Here are the deadlines and events on %s:%n",
@@ -116,7 +116,7 @@ public class Ui implements AutoCloseable {
     /**
      * Reports that no deadlines or events occur on a specified date.
      *
-     * @param date date checked by the user
+     * @param date date checked by the user.
      */
     public void showNoTasksOnDate(LocalDate date) {
         System.out.printf("There are no deadlines or events on %s.%n",
@@ -126,8 +126,8 @@ public class Ui implements AutoCloseable {
     /**
      * Displays one task with its number from the complete task list.
      *
-     * @param taskNumber one-based number of the task
-     * @param task task to display
+     * @param taskNumber one-based number of the task.
+     * @param task task to display.
      */
     public void showIndexedTask(int taskNumber, Task task) {
         System.out.printf("%d.%s%n", taskNumber, task);
@@ -136,7 +136,7 @@ public class Ui implements AutoCloseable {
     /**
      * Reports that a task was already completed.
      *
-     * @param task completed task
+     * @param task completed task.
      */
     public void showAlreadyMarked(Task task) {
         System.out.println("This task is already shining as complete!");
@@ -146,8 +146,8 @@ public class Ui implements AutoCloseable {
     /**
      * Confirms that a task was marked and reports how many remain.
      *
-     * @param task task that was marked
-     * @param remainingCount number of incomplete tasks
+     * @param task task that was marked.
+     * @param remainingCount number of incomplete tasks.
      */
     public void showTaskMarked(Task task, int remainingCount) {
         System.out.println("Woohoo! Another task is complete:");
@@ -163,7 +163,7 @@ public class Ui implements AutoCloseable {
     /**
      * Reports that a task was already incomplete.
      *
-     * @param task incomplete task
+     * @param task incomplete task.
      */
     public void showAlreadyUnmarked(Task task) {
         System.out.println("No changes needed-this task is already waiting in our lineup!");
@@ -173,8 +173,8 @@ public class Ui implements AutoCloseable {
     /**
      * Confirms that a task was unmarked and reports how many remain.
      *
-     * @param task task that was unmarked
-     * @param remainingCount number of incomplete tasks
+     * @param task task that was unmarked.
+     * @param remainingCount number of incomplete tasks.
      */
     public void showTaskUnmarked(Task task, int remainingCount) {
         System.out.println("Not quite finished? No worries, I've marked it as not done:");
@@ -186,8 +186,8 @@ public class Ui implements AutoCloseable {
     /**
      * Confirms that a task was added and reports the new total.
      *
-     * @param task task that was added
-     * @param totalCount total number of tasks
+     * @param task task that was added.
+     * @param totalCount total number of tasks.
      */
     public void showTaskAdded(Task task, int totalCount) {
         System.out.println("All right, I've added this to our lineup:");
@@ -199,8 +199,8 @@ public class Ui implements AutoCloseable {
     /**
      * Confirms that a task was deleted and reports the new total.
      *
-     * @param task task that was deleted
-     * @param totalCount total number of remaining tasks
+     * @param task task that was deleted.
+     * @param totalCount total number of remaining tasks.
      */
     public void showTaskDeleted(Task task, int totalCount) {
         System.out.println("All right, I've taken this task out of our lineup:");

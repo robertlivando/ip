@@ -36,9 +36,9 @@ public final class Parser {
     /**
      * Interprets a user input line and creates the command that should handle it.
      *
-     * @param userInput complete input entered by the user
-     * @return executable command represented by the input
-     * @throws YachiyoException if the command or its arguments are invalid
+     * @param userInput complete input entered by the user.
+     * @return executable command represented by the input.
+     * @throws YachiyoException if the command or its arguments are invalid.
      */
     public static Command parse(String userInput) throws YachiyoException {
         String[] parts = userInput.trim().split("\\s+", 2);
@@ -61,9 +61,9 @@ public final class Parser {
     /**
      * Parses a task number supplied to a task-related command.
      *
-     * @param arguments text expected to contain a task number
-     * @return parsed one-based task number
-     * @throws YachiyoException if the task number is missing or is not a whole number
+     * @param arguments text expected to contain a task number.
+     * @return parsed one-based task number.
+     * @throws YachiyoException if the task number is missing or is not a whole number.
      */
     private static int parseTaskNumber(String arguments) throws YachiyoException {
         if (arguments.isBlank()) {
@@ -84,9 +84,9 @@ public final class Parser {
     /**
      * Parses a date supplied to the {@code on} command.
      *
-     * @param dateText date supplied in d/M/yyyy format
-     * @return parsed date
-     * @throws YachiyoException if the date is missing or invalid
+     * @param dateText date supplied in d/M/yyyy format.
+     * @return parsed date.
+     * @throws YachiyoException if the date is missing or invalid.
      */
     private static LocalDate parseDate(String dateText) throws YachiyoException {
         if (dateText.isBlank()) {
@@ -107,9 +107,9 @@ public final class Parser {
     /**
      * Creates a to-do task from command arguments.
      *
-     * @param description task description supplied by the user
-     * @return parsed to-do task
-     * @throws YachiyoException if the description is missing
+     * @param description task description supplied by the user.
+     * @return parsed to-do task.
+     * @throws YachiyoException if the description is missing.
      */
     private static ToDo parseToDo(String description) throws YachiyoException {
         if (description.isBlank()) {
@@ -123,9 +123,9 @@ public final class Parser {
     /**
      * Creates a deadline task from command arguments.
      *
-     * @param taskDetails description and deadline supplied by the user
-     * @return parsed deadline task
-     * @throws YachiyoException if a required field is missing or invalid
+     * @param taskDetails description and deadline supplied by the user.
+     * @return parsed deadline task.
+     * @throws YachiyoException if a required field is missing or invalid.
      */
     private static Deadline parseDeadline(String taskDetails) throws YachiyoException {
         String[] deadlineParts = taskDetails.split("(?<!\\S)/by(?!\\S)", 2);
@@ -149,9 +149,9 @@ public final class Parser {
     /**
      * Creates an event task from command arguments.
      *
-     * @param taskDetails description, start, and end supplied by the user
-     * @return parsed event task
-     * @throws YachiyoException if a required field is missing or invalid
+     * @param taskDetails description, start, and end supplied by the user.
+     * @return parsed event task.
+     * @throws YachiyoException if a required field is missing or invalid.
      */
     private static Event parseEvent(String taskDetails) throws YachiyoException {
         String[] eventParts = taskDetails.split("(?<!\\S)/from(?!\\S)", 2);
@@ -194,10 +194,10 @@ public final class Parser {
     /**
      * Parses a date-time field using the format accepted in user commands.
      *
-     * @param dateTimeText date-time text supplied by the user
-     * @param fieldName name used to identify the field in error messages
-     * @return parsed date-time
-     * @throws YachiyoException if the supplied date-time is invalid
+     * @param dateTimeText date-time text supplied by the user.
+     * @param fieldName name used to identify the field in error messages.
+     * @return parsed date-time.
+     * @throws YachiyoException if the supplied date-time is invalid.
      */
     private static LocalDateTime parseDateTime(String dateTimeText, String fieldName)
             throws YachiyoException {

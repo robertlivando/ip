@@ -187,7 +187,7 @@ public class StorageTest {
     /**
      * Returns the nested data-file path used by most storage tests.
      *
-     * @return temporary data-file path
+     * @return temporary data-file path.
      */
     private Path dataFilePath() {
         return tempDirectory.resolve("data").resolve("yachiyo.txt");
@@ -196,8 +196,8 @@ public class StorageTest {
     /**
      * Writes test data to the temporary data file.
      *
-     * @param lines lines to write
-     * @throws IOException if the fixture cannot be created
+     * @param lines lines to write.
+     * @throws IOException if the fixture cannot be created.
      */
     private void writeData(String... lines) throws IOException {
         Files.createDirectories(dataFilePath().getParent());

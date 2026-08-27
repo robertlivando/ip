@@ -17,7 +17,7 @@ public class FindOnDateCommand extends Command {
     /**
      * Creates a command that searches for tasks occurring on the supplied date.
      *
-     * @param date date to search
+     * @param date date to search.
      */
     public FindOnDateCommand(LocalDate date) {
         this.date = date;
@@ -26,9 +26,9 @@ public class FindOnDateCommand extends Command {
     /**
      * Displays matching tasks while retaining their numbers from the complete list.
      *
-     * @param tasks task list to search
-     * @param ui user interface used to display the results
-     * @param storage unused because searching does not change stored data
+     * @param tasks task list to search.
+     * @param ui user interface used to display the results.
+     * @param storage unused because searching does not change stored data.
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {

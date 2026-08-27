@@ -217,9 +217,9 @@ public class ParserTest {
     /**
      * Parses and executes an add command, returning the task it created.
      *
-     * @param input add command to parse
-     * @return task added by the parsed command
-     * @throws YachiyoException if parsing or execution fails
+     * @param input add command to parse.
+     * @return task added by the parsed command.
+     * @throws YachiyoException if parsing or execution fails.
      */
     private Task executeAddCommand(String input) throws YachiyoException {
         Command command = Parser.parse(input);
