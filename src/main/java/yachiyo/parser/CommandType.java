@@ -1,3 +1,7 @@
+package yachiyo.parser;
+
+import yachiyo.exception.YachiyoException;
+
 public enum CommandType {
     MARK,
     UNMARK,

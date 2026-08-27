@@ -1,3 +1,11 @@
+package yachiyo.command;
+
+import yachiyo.exception.YachiyoException;
+import yachiyo.storage.Storage;
+import yachiyo.task.Task;
+import yachiyo.task.TaskList;
+import yachiyo.ui.Ui;
+
 /**
  * Adds a task to the task list and saves the updated list.
  */

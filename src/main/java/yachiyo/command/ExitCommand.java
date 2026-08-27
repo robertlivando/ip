@@ -1,3 +1,9 @@
+package yachiyo.command;
+
+import yachiyo.storage.Storage;
+import yachiyo.task.TaskList;
+import yachiyo.ui.Ui;
+
 /**
  * Displays Yachiyo's farewell and signals that the application should stop.
  */

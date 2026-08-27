@@ -1,16 +1,24 @@
+package yachiyo.command;
+
+import yachiyo.exception.YachiyoException;
+import yachiyo.storage.Storage;
+import yachiyo.task.Task;
+import yachiyo.task.TaskList;
+import yachiyo.ui.Ui;
+
 /**
  * Marks a selected task as completed and saves the updated list.
  */
 public class MarkCommand extends Command {
-    private final String arguments;
+    private final int taskNumber;
 
     /**
-     * Creates a command using the task-number arguments supplied by the user.
+     * Creates a command that marks the task with the supplied number.
      *
-     * @param arguments text expected to contain a task number
+     * @param taskNumber one-based number of the task to mark
      */
-    public MarkCommand(String arguments) {
-        this.arguments = arguments;
+    public MarkCommand(int taskNumber) {
+        this.taskNumber = taskNumber;
     }
 
     /**
@@ -29,7 +37,6 @@ public class MarkCommand extends Command {
             );
         }
 
-        int taskNumber = Parser.parseTaskNumber(arguments);
         Task task = tasks.get(taskNumber);
         if (task.isCompleted()) {
             ui.showAlreadyMarked(task);
