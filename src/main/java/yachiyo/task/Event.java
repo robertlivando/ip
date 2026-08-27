@@ -30,6 +30,11 @@ public class Event extends Task {
         this.to = to;
     }
 
+    /**
+     * Returns this event in the format used by the storage file.
+     *
+     * @return Stored event representation.
+     */
     @Override
     public String toFileFormat() {
         return String.format("EVENT | %s | %s | %s", super.toFileFormat(),
@@ -37,6 +42,12 @@ public class Event extends Task {
                 this.to.format(STORAGE_DATE_TIME_FORMATTER));
     }
 
+    /**
+     * Returns whether this event takes place on the specified date.
+     *
+     * @param date Date to check.
+     * @return True if the event includes the date; false otherwise.
+     */
     @Override
     public boolean occursOn(LocalDate date) {
         LocalDate startDate = this.from.toLocalDate();
@@ -44,6 +55,11 @@ public class Event extends Task {
         return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
+    /**
+     * Returns this event in its user-facing display format.
+     *
+     * @return Formatted event description, status, and duration.
+     */
     @Override
     public String toString() {
         return String.format("[E]%s (from: %s, to: %s)", super.toString(),
