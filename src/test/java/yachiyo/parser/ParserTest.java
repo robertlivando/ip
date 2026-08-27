@@ -16,6 +16,7 @@ import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
 import yachiyo.command.ExitCommand;
+import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
 import yachiyo.command.ListCommand;
 import yachiyo.command.MarkCommand;
@@ -44,6 +45,11 @@ public class ParserTest {
     @Test
     public void parse_byeCommand_exitCommandReturned() throws YachiyoException {
         assertInstanceOf(ExitCommand.class, Parser.parse("bye"));
+    }
+
+    @Test
+    public void parse_findCommand_findCommandReturned() throws YachiyoException {
+        assertInstanceOf(FindCommand.class, Parser.parse("find book"));
     }
 
     @Test
@@ -133,6 +139,11 @@ public class ParserTest {
     @Test
     public void parse_taskNumberMissing_exceptionThrown() {
         assertThrows(YachiyoException.class, () -> Parser.parse("mark"));
+    }
+
+    @Test
+    public void parse_findKeywordMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("find"));
     }
 
     @Test

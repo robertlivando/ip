@@ -155,6 +155,35 @@ public class TaskListTest {
     }
 
     @Test
+    public void findTasks_noMatchingDescriptions_emptyListReturned() {
+        TaskList taskList = new TaskList(List.of(
+                new ToDo("Submit report"),
+                new ToDo("Attend meeting")
+        ));
+
+        assertTrue(taskList.findTasks("book").isEmpty());
+    }
+
+    @Test
+    public void findTasks_caseInsensitiveSubstring_originalTaskNumbersRetained() {
+        Task firstMatchingTask = new ToDo("Read textbook");
+        Task secondMatchingTask = new ToDo("Return TEXTBOOK");
+        TaskList taskList = new TaskList(List.of(
+                firstMatchingTask,
+                new ToDo("Submit report"),
+                secondMatchingTask
+        ));
+
+        assertEquals(
+                List.of(
+                        new NumberedTask(1, firstMatchingTask),
+                        new NumberedTask(3, secondMatchingTask)
+                ),
+                taskList.findTasks("book")
+        );
+    }
+
+    @Test
     public void getTasksOnDate_noMatchingTasks_emptyListReturned() {
         Deadline deadline = new Deadline(
                 "Submit report",

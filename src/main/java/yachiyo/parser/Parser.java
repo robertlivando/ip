@@ -10,6 +10,7 @@ import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
 import yachiyo.command.ExitCommand;
+import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
 import yachiyo.command.ListCommand;
 import yachiyo.command.MarkCommand;
@@ -49,6 +50,7 @@ public final class Parser {
             case MARK -> new MarkCommand(parseTaskNumber(arguments));
             case UNMARK -> new UnmarkCommand(parseTaskNumber(arguments));
             case LIST -> new ListCommand();
+            case FIND -> new FindCommand(parseKeyword(arguments));
             case TODO -> new AddCommand(parseToDo(arguments));
             case DEADLINE -> new AddCommand(parseDeadline(arguments));
             case EVENT -> new AddCommand(parseEvent(arguments));
@@ -56,6 +58,22 @@ public final class Parser {
             case DELETE -> new DeleteCommand(parseTaskNumber(arguments));
             case BYE -> new ExitCommand();
         };
+    }
+
+    /**
+     * Returns a non-blank keyword supplied to the {@code find} command.
+     *
+     * @param keyword Keyword supplied by the user.
+     * @return Validated keyword.
+     * @throws YachiyoException If the keyword is missing.
+     */
+    private static String parseKeyword(String keyword) throws YachiyoException {
+        if (keyword.isBlank()) {
+            throw new YachiyoException(
+                    "What should I search for? Tell me a keyword!"
+            );
+        }
+        return keyword;
     }
 
     /**
