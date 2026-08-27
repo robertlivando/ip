@@ -1,6 +1,6 @@
 import java.time.LocalDate;
 
-public class Task {
+public abstract class Task {
     private final String description;
     private boolean isCompleted;
 
