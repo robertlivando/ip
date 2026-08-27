@@ -38,6 +38,10 @@ the user instruction and identify the exception.
 
 ## Git
 
+For every task that proposes, reviews, or creates a commit or branch, read and follow the
+project-specific `seedu-git-standard` skill at `skills/seedu-git-standard/SKILL.md`. All future commit
+messages must comply with that skill.
+
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
