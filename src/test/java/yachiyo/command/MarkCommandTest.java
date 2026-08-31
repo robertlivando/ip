@@ -43,8 +43,7 @@ public class MarkCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new MarkCommand(1).execute(new TaskList(), ui, storage));
+        assertThrows(YachiyoException.class, () -> new MarkCommand(1).execute(new TaskList(), ui, storage));
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.totalCallCount());
     }
@@ -56,8 +55,7 @@ public class MarkCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new MarkCommand(2).execute(tasks, ui, storage));
+        assertThrows(YachiyoException.class, () -> new MarkCommand(2).execute(tasks, ui, storage));
         assertFalse(task.isCompleted());
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.totalCallCount());
@@ -86,8 +84,7 @@ public class MarkCommandTest {
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new MarkCommand(1).execute(tasks, ui, storage));
+        assertThrows(YachiyoException.class, () -> new MarkCommand(1).execute(tasks, ui, storage));
         assertTrue(task.isCompleted());
         assertEquals(0, ui.showMarkedCallCount);
     }

@@ -180,8 +180,7 @@ public class StorageTest {
     public void saveTasks_fileCannotBeWritten_exceptionThrown() {
         Storage storage = new Storage(tempDirectory);
 
-        assertThrows(YachiyoException.class,
-                () -> storage.saveTasks(List.of(new ToDo("Read book"))));
+        assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(new ToDo("Read book"))));
     }
 
     /**

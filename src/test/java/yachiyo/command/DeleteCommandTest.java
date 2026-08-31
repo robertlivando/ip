@@ -43,8 +43,7 @@ public class DeleteCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new DeleteCommand(1).execute(tasks, ui, storage));
+        assertThrows(YachiyoException.class, () -> new DeleteCommand(1).execute(tasks, ui, storage));
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.showDeletedCallCount);
     }
@@ -56,8 +55,7 @@ public class DeleteCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new DeleteCommand(2).execute(tasks, ui, storage));
+        assertThrows(YachiyoException.class, () -> new DeleteCommand(2).execute(tasks, ui, storage));
         assertEquals(List.of(task), tasks.getTasks());
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.showDeletedCallCount);
@@ -70,8 +68,7 @@ public class DeleteCommandTest {
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new DeleteCommand(1).execute(tasks, ui, storage));
+        assertThrows(YachiyoException.class, () -> new DeleteCommand(1).execute(tasks, ui, storage));
         assertTrue(tasks.isEmpty());
         assertEquals(0, ui.showDeletedCallCount);
     }

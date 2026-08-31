@@ -158,20 +158,17 @@ public class ParserTest {
 
     @Test
     public void parse_deadlineDescriptionMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class,
-                () -> Parser.parse("deadline /by 20/8/2026 1700"));
+        assertThrows(YachiyoException.class, () -> Parser.parse("deadline /by 20/8/2026 1700"));
     }
 
     @Test
     public void parse_deadlineDateTimeMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class,
-                () -> Parser.parse("deadline Submit report"));
+        assertThrows(YachiyoException.class, () -> Parser.parse("deadline Submit report"));
     }
 
     @Test
     public void parse_deadlineDateTimeInvalid_exceptionThrown() {
-        assertThrows(YachiyoException.class,
-                () -> Parser.parse("deadline Submit report /by 31/2/2026 1700"));
+        assertThrows(YachiyoException.class, () -> Parser.parse("deadline Submit report /by 31/2/2026 1700"));
     }
 
     @Test
@@ -183,8 +180,7 @@ public class ParserTest {
 
     @Test
     public void parse_eventStartMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class,
-                () -> Parser.parse("event Orientation"));
+        assertThrows(YachiyoException.class, () -> Parser.parse("event Orientation"));
     }
 
     @Test
