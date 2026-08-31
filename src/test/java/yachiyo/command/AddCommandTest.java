@@ -57,8 +57,7 @@ public class AddCommandTest {
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class,
-                () -> new AddCommand(task).execute(tasks, ui, storage));
+        assertThrows(YachiyoException.class, () -> new AddCommand(task).execute(tasks, ui, storage));
         assertEquals(List.of(task), tasks.getTasks());
         assertEquals(0, ui.showAddedCallCount);
     }
