@@ -142,10 +142,10 @@ public class Storage {
                 Files.createDirectories(parentDirectory);
             }
 
-            List<String> taskData = tasks.stream()
+            List<String> taskLines = tasks.stream()
                     .map(Task::toFileFormat)
                     .toList();
-            Files.write(filePath, taskData, StandardCharsets.UTF_8);
+            Files.write(filePath, taskLines, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new YachiyoException("Oh no! I can't seem to save your tasks to the data file.");
         }

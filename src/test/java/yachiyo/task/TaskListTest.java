@@ -265,11 +265,11 @@ public class TaskListTest {
     public void getTasks_listModifiedAfterSnapshot_snapshotUnaffected() {
         Task firstTask = new ToDo("Read book");
         TaskList taskList = new TaskList(List.of(firstTask));
-        List<Task> snapshot = taskList.getTasks();
+        List<Task> copiedTasks = taskList.getTasks();
 
         taskList.add(new ToDo("Return book"));
 
-        assertEquals(List.of(firstTask), snapshot);
+        assertEquals(List.of(firstTask), copiedTasks);
         assertEquals(2, taskList.size());
     }
 }
