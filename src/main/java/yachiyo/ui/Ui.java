@@ -1,5 +1,7 @@
 package yachiyo.ui;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,12 +29,24 @@ public class Ui implements AutoCloseable {
             DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
 
     private final Scanner scanner;
+    private final PrintWriter output;
 
     /**
      * Creates a user interface that reads commands from standard input.
      */
     public Ui() {
         this.scanner = new Scanner(System.in);
+        this.output = new PrintWriter(System.out, true);
+    }
+
+    /**
+     * Creates a user interface that writes responses to the supplied destination.
+     *
+     * @param writer destination for command responses.
+     */
+    public Ui(Writer writer) {
+        this.scanner = new Scanner("");
+        this.output = new PrintWriter(writer, true);
     }
 
     /**
@@ -57,24 +71,33 @@ public class Ui implements AutoCloseable {
      * Displays Yachiyo's banner and greeting.
      */
     public void showIntroduction() {
-        System.out.println(BANNER);
-        System.out.println(GREETING);
-        System.out.println(BREAKER);
+        output.println(BANNER);
+        output.println(GREETING);
+        output.println(BREAKER);
+    }
+
+    /**
+     * Returns Yachiyo's greeting for interfaces that display it directly.
+     *
+     * @return introductory greeting.
+     */
+    public static String getGreeting() {
+        return GREETING;
     }
 
     /**
      * Displays the divider before a command response.
      */
     public void showCommandStart() {
-        System.out.println(BREAKER);
+        output.println(BREAKER);
     }
 
     /**
      * Displays the divider and spacing after a command response.
      */
     public void showCommandEnd() {
-        System.out.println(BREAKER);
-        System.out.println();
+        output.println(BREAKER);
+        output.println();
     }
 
     /**
@@ -83,7 +106,7 @@ public class Ui implements AutoCloseable {
      * @param message explanation of the error.
      */
     public void showError(String message) {
-        System.out.println(message);
+        output.println(message);
     }
 
     /**
@@ -93,11 +116,11 @@ public class Ui implements AutoCloseable {
      */
     public void showTaskList(List<Task> tasks) {
         if (tasks.isEmpty()) {
-            System.out.println("Our lineup is empty for now. What shall we take on next?");
+            output.println("Our lineup is empty for now. What shall we take on next?");
             return;
         }
 
-        System.out.println("Here's everything in our lineup:");
+        output.println("Here's everything in our lineup:");
         for (int i = 0; i < tasks.size(); i++) {
             showIndexedTask(i + 1, tasks.get(i));
         }
@@ -109,7 +132,7 @@ public class Ui implements AutoCloseable {
      * @param keyword Keyword matched by the displayed tasks.
      */
     public void showMatchingTasksHeader(String keyword) {
-        System.out.printf("Here are the tasks in our lineup matching \"%s\":%n", keyword);
+        output.printf("Here are the tasks in our lineup matching \"%s\":%n", keyword);
     }
 
     /**
@@ -118,7 +141,7 @@ public class Ui implements AutoCloseable {
      * @param keyword Keyword searched by the user.
      */
     public void showNoMatchingTasks(String keyword) {
-        System.out.printf("I couldn't find any tasks matching \"%s\".%n", keyword);
+        output.printf("I couldn't find any tasks matching \"%s\".%n", keyword);
     }
 
     /**
@@ -127,7 +150,7 @@ public class Ui implements AutoCloseable {
      * @param date date whose matching tasks will be displayed.
      */
     public void showTasksOnDateHeader(LocalDate date) {
-        System.out.printf("Here are the deadlines and events on %s:%n",
+        output.printf("Here are the deadlines and events on %s:%n",
                 date.format(DATE_DISPLAY_FORMATTER));
     }
 
@@ -137,7 +160,7 @@ public class Ui implements AutoCloseable {
      * @param date date checked by the user.
      */
     public void showNoTasksOnDate(LocalDate date) {
-        System.out.printf("There are no deadlines or events on %s.%n",
+        output.printf("There are no deadlines or events on %s.%n",
                 date.format(DATE_DISPLAY_FORMATTER));
     }
 
@@ -148,7 +171,7 @@ public class Ui implements AutoCloseable {
      * @param task task to display.
      */
     public void showIndexedTask(int taskNumber, Task task) {
-        System.out.printf("%d.%s%n", taskNumber, task);
+        output.printf("%d. %s%n", taskNumber, task);
     }
 
     /**
@@ -157,7 +180,7 @@ public class Ui implements AutoCloseable {
      * @param task completed task.
      */
     public void showAlreadyMarked(Task task) {
-        System.out.println("This task is already shining as complete!");
+        output.println("This task is already shining as complete!");
         showTask(task);
     }
 
@@ -168,12 +191,12 @@ public class Ui implements AutoCloseable {
      * @param remainingCount number of incomplete tasks.
      */
     public void showTaskMarked(Task task, int remainingCount) {
-        System.out.println("Woohoo! Another task is complete:");
+        output.println("Woohoo! Another task is complete:");
         showTask(task);
         if (remainingCount == 0) {
-            System.out.println("Wonderful—everything in our lineup is complete!");
+            output.println("Wonderful—everything in our lineup is complete!");
         } else {
-            System.out.printf("And with that, our lineup now has %d task%s remaining!%n",
+            output.printf("And with that, our lineup now has %d task%s remaining!%n",
                     remainingCount, remainingCount == 1 ? "" : "s");
         }
     }
@@ -184,7 +207,7 @@ public class Ui implements AutoCloseable {
      * @param task incomplete task.
      */
     public void showAlreadyUnmarked(Task task) {
-        System.out.println("No changes needed-this task is already waiting in our lineup!");
+        output.println("No changes needed-this task is already waiting in our lineup!");
         showTask(task);
     }
 
@@ -195,9 +218,9 @@ public class Ui implements AutoCloseable {
      * @param remainingCount number of incomplete tasks.
      */
     public void showTaskUnmarked(Task task, int remainingCount) {
-        System.out.println("Not quite finished? No worries, I've marked it as not done:");
+        output.println("Not quite finished? No worries, I've marked it as not done:");
         showTask(task);
-        System.out.printf("Our lineup now has %d task%s remaining!%n",
+        output.printf("Our lineup now has %d task%s remaining!%n",
                 remainingCount, remainingCount == 1 ? "" : "s");
     }
 
@@ -208,9 +231,9 @@ public class Ui implements AutoCloseable {
      * @param totalCount total number of tasks.
      */
     public void showTaskAdded(Task task, int totalCount) {
-        System.out.println("All right, I've added this to our lineup:");
+        output.println("All right, I've added this to our lineup:");
         showTask(task);
-        System.out.printf("And with that, our lineup now has %d task%s in total!%n",
+        output.printf("And with that, our lineup now has %d task%s in total!%n",
                 totalCount, totalCount == 1 ? "" : "s");
     }
 
@@ -221,27 +244,26 @@ public class Ui implements AutoCloseable {
      * @param totalCount total number of remaining tasks.
      */
     public void showTaskDeleted(Task task, int totalCount) {
-        System.out.println("All right, I've taken this task out of our lineup:");
+        output.println("All right, I've taken this task out of our lineup:");
         showTask(task);
         if (totalCount == 0) {
-            System.out.println("And with that, our lineup is empty again. "
+            output.println("And with that, our lineup is empty again. "
                     + "What shall we take on next?");
         } else {
-            System.out.printf("And with that, our lineup now has %d task%s in total!%n",
+            output.printf("And with that, our lineup now has %d task%s in total!%n",
                     totalCount, totalCount == 1 ? "" : "s");
         }
     }
 
     /**
-     * Displays Yachiyo's farewell and closing divider.
+     * Displays Yachiyo's farewell.
      */
     public void showExit() {
-        System.out.println(EXIT_MESSAGE);
-        System.out.println(BREAKER);
+        output.println(EXIT_MESSAGE);
     }
 
     private void showTask(Task task) {
-        System.out.printf("- %s%n", task);
+        output.printf("- %s%n", task);
     }
 
     /**
@@ -250,5 +272,6 @@ public class Ui implements AutoCloseable {
     @Override
     public void close() {
         scanner.close();
+        output.flush();
     }
 }
