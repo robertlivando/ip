@@ -30,11 +30,13 @@ public class TaskListTest {
     }
 
     @Test
-    public void constructor_initialTasks_tasksCopied() {
+    public void constructor_varargsTasks_tasksCopied() {
         Task firstTask = new ToDo("Read book");
         Task secondTask = new ToDo("Return book");
+        Task[] initialTasks = {firstTask, secondTask};
 
-        TaskList taskList = new TaskList(List.of(firstTask, secondTask));
+        TaskList taskList = new TaskList(initialTasks);
+        initialTasks[0] = new ToDo("Buy book");
 
         assertEquals(List.of(firstTask, secondTask), taskList.getTasks());
     }

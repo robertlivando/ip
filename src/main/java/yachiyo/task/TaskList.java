@@ -26,6 +26,16 @@ public class TaskList {
      *
      * @param tasks initial tasks.
      */
+    public TaskList(Task... tasks) {
+        this(List.of(tasks));
+    }
+
+    /**
+     * Creates a task list containing the supplied tasks.
+     * A defensive copy prevents callers from modifying the internal collection.
+     *
+     * @param tasks initial tasks.
+     */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
     }
