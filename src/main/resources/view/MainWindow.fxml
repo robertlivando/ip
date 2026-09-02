@@ -8,34 +8,20 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity"
             minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="600.0" prefWidth="400.0"
+            prefHeight="640.0" prefWidth="440.0"
+            styleClass="app-root"
+            stylesheets="@../css/main.css"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="yachiyo.ui.MainWindow">
     <children>
-        <TextField fx:id="userInput"
-                   layoutY="558.0"
-                   onAction="#handleUserInput"
-                   prefHeight="41.0"
-                   prefWidth="324.0"
-                   AnchorPane.bottomAnchor="1.0"
-                   AnchorPane.leftAnchor="0.0"
-                   AnchorPane.rightAnchor="76.0" />
-        <Button layoutX="324.0"
-                layoutY="558.0"
-                mnemonicParsing="false"
-                onAction="#handleUserInput"
-                prefHeight="41.0"
-                prefWidth="76.0"
-                text="Send"
-                AnchorPane.bottomAnchor="1.0"
-                AnchorPane.rightAnchor="0.0" />
         <ScrollPane fx:id="scrollPane"
                     fitToWidth="true"
                     hbarPolicy="NEVER"
                     hvalue="1.0"
                     prefHeight="557.0"
                     prefWidth="400.0"
+                    styleClass="chat-scroll"
                     vbarPolicy="ALWAYS"
                     vvalue="1.0"
                     AnchorPane.bottomAnchor="43.0"
@@ -44,9 +30,30 @@
                     AnchorPane.topAnchor="0.0">
             <content>
                 <VBox fx:id="dialogContainer"
-                      prefHeight="552.0"
-                      prefWidth="388.0" />
+                      prefWidth="388.0"
+                      styleClass="dialog-container" />
             </content>
         </ScrollPane>
+        <TextField fx:id="userInput"
+                   layoutY="558.0"
+                   onAction="#handleUserInput"
+                   promptText="Write beneath the moon..."
+                   prefHeight="41.0"
+                   prefWidth="324.0"
+                   styleClass="message-input"
+                   AnchorPane.bottomAnchor="1.0"
+                   AnchorPane.leftAnchor="0.0"
+                   AnchorPane.rightAnchor="76.0" />
+        <Button fx:id="sendButton"
+                layoutX="324.0"
+                layoutY="558.0"
+                mnemonicParsing="false"
+                onAction="#handleUserInput"
+                prefHeight="41.0"
+                prefWidth="76.0"
+                styleClass="send-button"
+                text="Send"
+                AnchorPane.bottomAnchor="1.0"
+                AnchorPane.rightAnchor="0.0" />
     </children>
 </AnchorPane>

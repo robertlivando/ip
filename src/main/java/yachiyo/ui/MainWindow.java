@@ -3,20 +3,26 @@ package yachiyo.ui;
 import java.net.URL;
 import java.util.Objects;
 
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import yachiyo.Yachiyo;
 
 /**
  * Controls the main chat window defined in FXML.
  */
 public class MainWindow extends AnchorPane {
-    private final Image userImage = loadImage("/images/DaUser.png");
-    private final Image yachiyoImage = loadImage("/images/DaDuke.png");
+    private static final Duration EXIT_DELAY = Duration.millis(1750);
+
+    private final Image userImage = loadImage("/images/user-profile.png");
+    private final Image yachiyoImage = loadImage("/images/yachiyo-profile.png");
 
     @FXML
     private ScrollPane scrollPane;
@@ -26,6 +32,9 @@ public class MainWindow extends AnchorPane {
 
     @FXML
     private TextField userInput;
+
+    @FXML
+    private Button sendButton;
 
     private Yachiyo yachiyo;
 
@@ -44,6 +53,9 @@ public class MainWindow extends AnchorPane {
      */
     public void setYachiyo(Yachiyo yachiyo) {
         this.yachiyo = yachiyo;
+        dialogContainer.getChildren().add(
+                DialogBox.getYachiyoDialog(yachiyo.getGreeting(), yachiyoImage)
+        );
     }
 
     /**
@@ -51,13 +63,33 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
-        String input = userInput.getText();
+        String input = userInput.getText().trim();
+        if (input.isEmpty()) {
+            return;
+        }
+
         String response = yachiyo.getResponse(input);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
                 DialogBox.getYachiyoDialog(response, yachiyoImage)
         );
         userInput.clear();
+
+        if (yachiyo.isExitRequested()) {
+            disableInputAndScheduleClose();
+        }
+    }
+
+    /**
+     * Prevents further input and closes the window after the farewell can be read.
+     */
+    private void disableInputAndScheduleClose() {
+        userInput.setDisable(true);
+        sendButton.setDisable(true);
+
+        PauseTransition closeDelay = new PauseTransition(EXIT_DELAY);
+        closeDelay.setOnFinished(event -> ((Stage) getScene().getWindow()).close());
+        closeDelay.play();
     }
 
     private Image loadImage(String imagePath) {
