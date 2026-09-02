@@ -19,6 +19,10 @@ import yachiyo.ui.DialogBox;
  * Displays the JavaFX user interface for Yachiyo.
  */
 public class Main extends Application {
+    private VBox dialogContainer;
+    private TextField userInput;
+    private Image userImage;
+
     /**
      * Displays the chat interface.
      *
@@ -27,15 +31,13 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         ScrollPane scrollPane = new ScrollPane();
-        VBox dialogContainer = new VBox();
+        dialogContainer = new VBox();
         scrollPane.setContent(dialogContainer);
 
-        TextField userInput = new TextField();
+        userInput = new TextField();
         Button sendButton = new Button("Send");
 
-        Image userImage = loadImage("/images/DaUser.png");
-        DialogBox dialogBox = new DialogBox("Hello!", userImage);
-        dialogContainer.getChildren().add(dialogBox);
+        userImage = loadImage("/images/DaUser.png");
 
         AnchorPane mainLayout = new AnchorPane();
         mainLayout.getChildren().addAll(scrollPane, userInput, sendButton);
@@ -63,9 +65,23 @@ public class Main extends Application {
         AnchorPane.setLeftAnchor(userInput, 1.0);
         AnchorPane.setBottomAnchor(userInput, 1.0);
 
+        sendButton.setOnMouseClicked(event -> handleUserInput());
+        userInput.setOnAction(event -> handleUserInput());
+        dialogContainer.heightProperty().addListener(
+                observable -> scrollPane.setVvalue(1.0)
+        );
+
         Scene scene = new Scene(mainLayout);
         stage.setScene(scene);
         stage.show();
+    }
+
+    /**
+     * Adds the user's message to the dialog pane and clears the input field.
+     */
+    private void handleUserInput() {
+        dialogContainer.getChildren().add(new DialogBox(userInput.getText(), userImage));
+        userInput.clear();
     }
 
     private Image loadImage(String imagePath) {
