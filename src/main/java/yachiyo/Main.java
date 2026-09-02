@@ -87,8 +87,8 @@ public class Main extends Application {
         String userText = userInput.getText();
         String yachiyoText = yachiyo.getResponse(userText);
         dialogContainer.getChildren().addAll(
-                new DialogBox(userText, userImage),
-                new DialogBox(yachiyoText, yachiyoImage)
+                DialogBox.getUserDialog(userText, userImage),
+                DialogBox.getYachiyoDialog(yachiyoText, yachiyoImage)
         );
         userInput.clear();
     }
