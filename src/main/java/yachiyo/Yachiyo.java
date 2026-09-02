@@ -29,6 +29,16 @@ public class Yachiyo {
     }
 
     /**
+     * Generates a temporary response by echoing the user's message.
+     *
+     * @param input user's message.
+     * @return response acknowledging the user's message.
+     */
+    public String getResponse(String input) {
+        return "Yachiyo heard: " + input;
+    }
+
+    /**
      * Runs the command-processing loop until the user exits or input ends.
      */
     private void run() {

@@ -19,9 +19,12 @@ import yachiyo.ui.DialogBox;
  * Displays the JavaFX user interface for Yachiyo.
  */
 public class Main extends Application {
+    private final Yachiyo yachiyo = new Yachiyo();
+
     private VBox dialogContainer;
     private TextField userInput;
     private Image userImage;
+    private Image yachiyoImage;
 
     /**
      * Displays the chat interface.
@@ -38,6 +41,7 @@ public class Main extends Application {
         Button sendButton = new Button("Send");
 
         userImage = loadImage("/images/DaUser.png");
+        yachiyoImage = loadImage("/images/DaDuke.png");
 
         AnchorPane mainLayout = new AnchorPane();
         mainLayout.getChildren().addAll(scrollPane, userInput, sendButton);
@@ -80,7 +84,12 @@ public class Main extends Application {
      * Adds the user's message to the dialog pane and clears the input field.
      */
     private void handleUserInput() {
-        dialogContainer.getChildren().add(new DialogBox(userInput.getText(), userImage));
+        String userText = userInput.getText();
+        String yachiyoText = yachiyo.getResponse(userText);
+        dialogContainer.getChildren().addAll(
+                new DialogBox(userText, userImage),
+                new DialogBox(yachiyoText, yachiyoImage)
+        );
         userInput.clear();
     }
 
