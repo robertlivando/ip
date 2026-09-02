@@ -34,9 +34,8 @@ public class Main extends Application {
 
         Scene scene = new Scene(mainLayout);
         stage.setTitle("Yachiyo");
-        stage.setResizable(false);
-        stage.setMinHeight(600.0);
-        stage.setMinWidth(400.0);
+        stage.setMinHeight(220.0);
+        stage.setMinWidth(417.0);
         stage.setScene(scene);
         stage.show();
     }
