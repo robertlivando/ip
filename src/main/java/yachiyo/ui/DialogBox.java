@@ -1,7 +1,13 @@
 package yachiyo.ui;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Objects;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -13,22 +19,28 @@ import javafx.scene.layout.HBox;
  * Displays a chat message beside its sender's profile image.
  */
 public class DialogBox extends HBox {
-    /**
-     * Creates a dialog box containing the supplied message and profile image.
-     *
-     * @param message message to display.
-     * @param image profile image to display.
-     */
-    public DialogBox(String message, Image image) {
-        Label text = new Label(message);
-        ImageView displayPicture = new ImageView(image);
+    @FXML
+    private Label dialog;
 
-        text.setWrapText(true);
-        displayPicture.setFitWidth(100.0);
-        displayPicture.setFitHeight(100.0);
-        setAlignment(Pos.TOP_RIGHT);
+    @FXML
+    private ImageView displayPicture;
 
-        getChildren().addAll(text, displayPicture);
+    private DialogBox(String message, Image image) {
+        FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(
+                DialogBox.class.getResource("/view/DialogBox.fxml"),
+                "Dialog box FXML resource not found."
+        ));
+        fxmlLoader.setController(this);
+        fxmlLoader.setRoot(this);
+
+        try {
+            fxmlLoader.load();
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to load the dialog box FXML.", e);
+        }
+
+        dialog.setText(message);
+        displayPicture.setImage(image);
     }
 
     /**
@@ -61,7 +73,7 @@ public class DialogBox extends HBox {
     private void flip() {
         setAlignment(Pos.TOP_LEFT);
         ObservableList<Node> children = FXCollections.observableArrayList(getChildren());
-        FXCollections.reverse(children);
+        Collections.reverse(children);
         getChildren().setAll(children);
     }
 }
