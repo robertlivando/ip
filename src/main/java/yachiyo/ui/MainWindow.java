@@ -19,7 +19,7 @@ import yachiyo.Yachiyo;
  * Controls the main chat window defined in FXML.
  */
 public class MainWindow extends AnchorPane {
-    private static final Duration EXIT_DELAY = Duration.millis(1750);
+    private static final Duration EXIT_DELAY = Duration.millis(2000);
 
     private final Image userImage = loadImage("/images/user-profile.png");
     private final Image yachiyoImage = loadImage("/images/yachiyo-profile.png");
@@ -88,7 +88,7 @@ public class MainWindow extends AnchorPane {
         sendButton.setDisable(true);
 
         PauseTransition closeDelay = new PauseTransition(EXIT_DELAY);
-        closeDelay.setOnFinished(event -> ((Stage) getScene().getWindow()).close());
+        closeDelay.setOnFinished(event -> ((Stage) userInput.getScene().getWindow()).close());
         closeDelay.play();
     }
 
