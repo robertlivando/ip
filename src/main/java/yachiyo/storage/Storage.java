@@ -67,7 +67,20 @@ public class Storage {
             throw invalidDataException();
         }
 
-        Task task = switch (taskParts[0]) {
+        Task task = createTaskFromParts(taskParts);
+        restoreCompletionStatus(task, taskParts[1]);
+        return task;
+    }
+
+    /**
+     * Creates a task from the type-specific fields in a saved record.
+     *
+     * @param taskParts saved task fields.
+     * @return reconstructed task with its type-specific fields populated.
+     * @throws YachiyoException if the task type or its fields are invalid.
+     */
+    private Task createTaskFromParts(String[] taskParts) throws YachiyoException {
+        return switch (taskParts[0]) {
             case "TODO" -> {
                 validateTaskParts(taskParts, 3);
                 yield new ToDo(taskParts[2]);
@@ -83,13 +96,21 @@ public class Storage {
             }
             default -> throw invalidDataException();
         };
+    }
 
-        if (taskParts[1].equals("1")) {
+    /**
+     * Restores a task's completion state from its saved status field.
+     *
+     * @param task task whose completion state should be restored.
+     * @param completionStatus saved completion status.
+     * @throws YachiyoException if the completion status is invalid.
+     */
+    private void restoreCompletionStatus(Task task, String completionStatus) throws YachiyoException {
+        if (completionStatus.equals("1")) {
             task.markAsDone();
-        } else if (!taskParts[1].equals("0")) {
+        } else if (!completionStatus.equals("0")) {
             throw invalidDataException();
         }
-        return task;
     }
 
     /**
