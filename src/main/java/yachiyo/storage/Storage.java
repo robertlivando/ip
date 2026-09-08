@@ -78,8 +78,12 @@ public class Storage {
             }
             case "EVENT" -> {
                 validateTaskParts(taskParts, 5);
-                yield new Event(taskParts[2], parseDateTime(taskParts[3]),
-                        parseDateTime(taskParts[4]));
+                LocalDateTime from = parseDateTime(taskParts[3]);
+                LocalDateTime to = parseDateTime(taskParts[4]);
+                if (!to.isAfter(from)) {
+                    throw invalidDataException();
+                }
+                yield new Event(taskParts[2], from, to);
             }
             default -> throw invalidDataException();
         };

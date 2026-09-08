@@ -59,7 +59,7 @@ Create an executable JAR containing the application and its dependencies:
 Run the generated JAR:
 
 ```shell
-java -jar build/libs/yachiyo.jar
+java -ea -jar build/libs/yachiyo.jar
 ```
 
 ## Running tests and code checks

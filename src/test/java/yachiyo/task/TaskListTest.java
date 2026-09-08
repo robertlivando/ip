@@ -54,6 +54,19 @@ public class TaskListTest {
     }
 
     @Test
+    public void constructor_nullTaskCollection_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new TaskList((List<Task>) null));
+    }
+
+    @Test
+    public void constructor_nullTaskInCollection_assertionErrorThrown() {
+        List<Task> initialTasks = new ArrayList<>();
+        initialTasks.add(null);
+
+        assertThrows(AssertionError.class, () -> new TaskList(initialTasks));
+    }
+
+    @Test
     public void add_taskAddedToEnd() {
         Task firstTask = new ToDo("Read book");
         Task secondTask = new ToDo("Return book");
@@ -65,6 +78,13 @@ public class TaskListTest {
         assertFalse(taskList.isEmpty());
         assertEquals(2, taskList.size());
         assertEquals(List.of(firstTask, secondTask), taskList.getTasks());
+    }
+
+    @Test
+    public void add_nullTask_assertionErrorThrown() {
+        TaskList taskList = new TaskList();
+
+        assertThrows(AssertionError.class, () -> taskList.add(null));
     }
 
     @Test
