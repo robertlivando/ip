@@ -196,8 +196,8 @@ public class Ui implements AutoCloseable {
         if (remainingCount == 0) {
             output.println("Wonderful—everything in our lineup is complete!");
         } else {
-            output.printf("And with that, our lineup now has %d task%s remaining!%n",
-                    remainingCount, remainingCount == 1 ? "" : "s");
+            output.printf("And with that, our lineup now has %s remaining!%n",
+                    formatTaskCount(remainingCount));
         }
     }
 
@@ -220,8 +220,7 @@ public class Ui implements AutoCloseable {
     public void showTaskUnmarked(Task task, int remainingCount) {
         output.println("Not quite finished? No worries, I've marked it as not done:");
         showTask(task);
-        output.printf("Our lineup now has %d task%s remaining!%n",
-                remainingCount, remainingCount == 1 ? "" : "s");
+        output.printf("Our lineup now has %s remaining!%n", formatTaskCount(remainingCount));
     }
 
     /**
@@ -233,8 +232,8 @@ public class Ui implements AutoCloseable {
     public void showTaskAdded(Task task, int totalCount) {
         output.println("All right, I've added this to our lineup:");
         showTask(task);
-        output.printf("And with that, our lineup now has %d task%s in total!%n",
-                totalCount, totalCount == 1 ? "" : "s");
+        output.printf("And with that, our lineup now has %s in total!%n",
+                formatTaskCount(totalCount));
     }
 
     /**
@@ -250,8 +249,8 @@ public class Ui implements AutoCloseable {
             output.println("And with that, our lineup is empty again. "
                     + "What shall we take on next?");
         } else {
-            output.printf("And with that, our lineup now has %d task%s in total!%n",
-                    totalCount, totalCount == 1 ? "" : "s");
+            output.printf("And with that, our lineup now has %s in total!%n",
+                    formatTaskCount(totalCount));
         }
     }
 
@@ -264,6 +263,10 @@ public class Ui implements AutoCloseable {
 
     private void showTask(Task task) {
         output.printf("- %s%n", task);
+    }
+
+    private static String formatTaskCount(int count) {
+        return String.format("%d task%s", count, count == 1 ? "" : "s");
     }
 
     /**
