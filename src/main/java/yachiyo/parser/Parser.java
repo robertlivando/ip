@@ -186,7 +186,19 @@ public final class Parser {
             );
         }
 
-        String[] durationParts = eventParts[1].trim().split("(?<!\\S)/to(?!\\S)", 2);
+        EventPeriod eventPeriod = parseEventPeriod(eventParts[1].trim());
+        return new Event(description, eventPeriod.start(), eventPeriod.end());
+    }
+
+    /**
+     * Parses and validates the start and end of an event period.
+     *
+     * @param eventPeriodText start and end date-times separated by {@code /to}.
+     * @return parsed event period.
+     * @throws YachiyoException if either date-time is missing or invalid, or the end is not later.
+     */
+    private static EventPeriod parseEventPeriod(String eventPeriodText) throws YachiyoException {
+        String[] durationParts = eventPeriodText.split("(?<!\\S)/to(?!\\S)", 2);
         String fromText = durationParts[0].trim();
         if (fromText.isBlank()) {
             throw new YachiyoException(
@@ -206,7 +218,7 @@ public final class Parser {
             throw new YachiyoException("Hmm, the event should end after it starts.");
         }
 
-        return new Event(description, from, to);
+        return new EventPeriod(from, to);
     }
 
     /**
@@ -227,5 +239,14 @@ public final class Parser {
                             + "for example 2/12/2019 1800.", fieldName)
             );
         }
+    }
+
+    /**
+     * Holds the validated start and end date-times of an event.
+     *
+     * @param start date and time when the event starts.
+     * @param end date and time when the event ends.
+     */
+    private record EventPeriod(LocalDateTime start, LocalDateTime end) {
     }
 }
