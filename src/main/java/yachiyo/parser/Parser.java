@@ -24,6 +24,9 @@ import yachiyo.task.ToDo;
  * Interprets user commands and converts their arguments into application objects.
  */
 public final class Parser {
+    private static final String DEADLINE_DELIMITER_PATTERN = createCommandDelimiterPattern("by");
+    private static final String EVENT_START_DELIMITER_PATTERN = createCommandDelimiterPattern("from");
+    private static final String EVENT_END_DELIMITER_PATTERN = createCommandDelimiterPattern("to");
     private static final DateTimeFormatter DATE_TIME_INPUT_FORMATTER = DateTimeFormatter
             .ofPattern("d/M/uuuu HHmm")
             .withResolverStyle(ResolverStyle.STRICT);
@@ -32,6 +35,16 @@ public final class Parser {
             .withResolverStyle(ResolverStyle.STRICT);
 
     private Parser() {
+    }
+
+    /**
+     * Creates a pattern that recognizes a slash-prefixed delimiter only as a separate command token.
+     *
+     * @param delimiter delimiter text without its leading slash.
+     * @return regex for matching the command delimiter.
+     */
+    private static String createCommandDelimiterPattern(String delimiter) {
+        return "(?<!\\S)/" + delimiter + "(?!\\S)";
     }
 
     /**
@@ -146,7 +159,7 @@ public final class Parser {
      * @throws YachiyoException if a required field is missing or invalid.
      */
     private static Deadline parseDeadline(String taskDetails) throws YachiyoException {
-        String[] deadlineParts = taskDetails.split("(?<!\\S)/by(?!\\S)", 2);
+        String[] deadlineParts = taskDetails.split(DEADLINE_DELIMITER_PATTERN, 2);
         String description = deadlineParts[0].trim();
         if (description.isBlank()) {
             throw new YachiyoException(
@@ -172,7 +185,7 @@ public final class Parser {
      * @throws YachiyoException if a required field is missing or invalid.
      */
     private static Event parseEvent(String taskDetails) throws YachiyoException {
-        String[] eventParts = taskDetails.split("(?<!\\S)/from(?!\\S)", 2);
+        String[] eventParts = taskDetails.split(EVENT_START_DELIMITER_PATTERN, 2);
         String description = eventParts[0].trim();
         if (description.isBlank()) {
             throw new YachiyoException(
@@ -198,7 +211,7 @@ public final class Parser {
      * @throws YachiyoException if either date-time is missing or invalid, or the end is not later.
      */
     private static EventPeriod parseEventPeriod(String eventPeriodText) throws YachiyoException {
-        String[] durationParts = eventPeriodText.split("(?<!\\S)/to(?!\\S)", 2);
+        String[] durationParts = eventPeriodText.split(EVENT_END_DELIMITER_PATTERN, 2);
         String fromText = durationParts[0].trim();
         if (fromText.isBlank()) {
             throw new YachiyoException(
