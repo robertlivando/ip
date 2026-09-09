@@ -96,7 +96,8 @@ public final class Parser {
         int taskNumber = parseTaskNumber(editParts[0]);
         if (editParts.length < 2) {
             throw new YachiyoException(
-                    "Which detail should I edit? Try /description followed by its new value."
+                    "Which detail should I edit? Try /description, /by, /from, or /to "
+                            + "followed by its new value."
             );
         }
 

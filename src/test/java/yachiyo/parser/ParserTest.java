@@ -224,7 +224,14 @@ public class ParserTest {
 
     @Test
     public void parse_editFieldMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1"));
+        YachiyoException exception = assertThrows(
+                YachiyoException.class, () -> Parser.parse("edit 1"));
+
+        assertEquals(
+                "Which detail should I edit? Try /description, /by, /from, or /to "
+                        + "followed by its new value.",
+                exception.getMessage()
+        );
     }
 
     @Test
