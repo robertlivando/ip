@@ -115,6 +115,13 @@ public class StorageTest {
     }
 
     @Test
+    public void loadTasks_eventEndNotAfterStart_exceptionThrown() throws IOException {
+        writeData("EVENT | 0 | Orientation | 2026-08-20T17:00 | 2026-08-20T09:00");
+
+        assertInvalidDataRejected();
+    }
+
+    @Test
     public void loadTasks_fileCannotBeRead_exceptionThrown() {
         Storage storage = new Storage(tempDirectory);
 

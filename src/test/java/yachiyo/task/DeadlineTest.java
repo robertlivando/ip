@@ -2,6 +2,7 @@ package yachiyo.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -17,6 +18,11 @@ public class DeadlineTest {
             LocalDateTime.of(2026, 8, 20, 17, 0);
 
     private final Deadline deadline = new Deadline("Submit report", DUE_DATE_TIME);
+
+    @Test
+    public void constructor_nullDueDateTime_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new Deadline("Submit report", null));
+    }
 
     @Test
     public void occursOn_dateBeforeDeadline_falseReturned() {
