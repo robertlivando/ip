@@ -2,6 +2,7 @@ package yachiyo.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -73,5 +74,30 @@ public class DeadlineTest {
                 "[D][X] Submit report (by: Aug 20 2026, 5:00 PM)",
                 deadline.toString()
         );
+    }
+
+    @Test
+    public void withDescription_completedDeadline_onlyDescriptionChanged() {
+        deadline.markAsDone();
+
+        Deadline editedDeadline = deadline.withDescription("Submit draft");
+
+        assertNotSame(deadline, editedDeadline);
+        assertEquals("Submit draft", editedDeadline.getDescription());
+        assertEquals(DUE_DATE_TIME, editedDeadline.getBy());
+        assertTrue(editedDeadline.isCompleted());
+    }
+
+    @Test
+    public void withBy_completedDeadline_onlyDueDateTimeChanged() {
+        LocalDateTime replacementDateTime = DUE_DATE_TIME.plusDays(1);
+        deadline.markAsDone();
+
+        Deadline editedDeadline = deadline.withBy(replacementDateTime);
+
+        assertNotSame(deadline, editedDeadline);
+        assertEquals("Submit report", editedDeadline.getDescription());
+        assertEquals(replacementDateTime, editedDeadline.getBy());
+        assertTrue(editedDeadline.isCompleted());
     }
 }

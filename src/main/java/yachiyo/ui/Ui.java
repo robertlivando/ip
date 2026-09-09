@@ -249,6 +249,16 @@ public class Ui implements AutoCloseable {
     }
 
     /**
+     * Confirms that one detail of a task was edited.
+     *
+     * @param task task containing the edited detail.
+     */
+    public void showTaskEdited(Task task) {
+        output.println("All right, I've updated this task:");
+        showTask(task);
+    }
+
+    /**
      * Confirms that a task was deleted and reports the new total.
      *
      * @param task task that was deleted.

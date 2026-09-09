@@ -6,6 +6,7 @@ chat-style interface. Tasks are stored locally and restored the next time the ap
 ## Features
 
 - Add to-dos, deadlines, and events.
+- Edit individual task descriptions and date-time details.
 - Mark tasks as complete or incomplete.
 - Find tasks by description or date.
 - Delete tasks and list the current lineup.

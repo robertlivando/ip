@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,10 @@ import org.junit.jupiter.api.Test;
 import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
+import yachiyo.command.EditDeadlineDateTimeCommand;
+import yachiyo.command.EditDescriptionCommand;
+import yachiyo.command.EditEventEndDateTimeCommand;
+import yachiyo.command.EditEventStartDateTimeCommand;
 import yachiyo.command.ExitCommand;
 import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
@@ -90,6 +95,61 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_editDescriptionCommand_detailsPassed() throws YachiyoException {
+        TaskList tasks = new TaskList(new ToDo("Read book"));
+        Command command = Parser.parse("edit 1 /description Return book");
+
+        assertInstanceOf(EditDescriptionCommand.class, command);
+        command.execute(tasks, ui, storage);
+        assertEquals("Return book", tasks.get(1).getDescription());
+    }
+
+    @Test
+    public void parse_editDeadlineCommand_detailsPassed() throws YachiyoException {
+        Deadline deadline = new Deadline(
+                "Submit report", LocalDateTime.of(2026, 9, 20, 17, 0));
+        TaskList tasks = new TaskList(deadline);
+        Command command = Parser.parse("edit 1 /by 21/9/2026 1800");
+
+        assertInstanceOf(EditDeadlineDateTimeCommand.class, command);
+        command.execute(tasks, ui, storage);
+        Deadline editedDeadline = (Deadline) tasks.get(1);
+        assertEquals(LocalDateTime.of(2026, 9, 21, 18, 0), editedDeadline.getBy());
+    }
+
+    @Test
+    public void parse_editEventStartCommand_detailsPassed() throws YachiyoException {
+        Event event = new Event(
+                "Workshop",
+                LocalDateTime.of(2026, 9, 20, 9, 0),
+                LocalDateTime.of(2026, 9, 20, 17, 0)
+        );
+        TaskList tasks = new TaskList(event);
+        Command command = Parser.parse("edit 1 /from 20/9/2026 1000");
+
+        assertInstanceOf(EditEventStartDateTimeCommand.class, command);
+        command.execute(tasks, ui, storage);
+        Event editedEvent = (Event) tasks.get(1);
+        assertEquals(LocalDateTime.of(2026, 9, 20, 10, 0), editedEvent.getFrom());
+    }
+
+    @Test
+    public void parse_editEventEndCommand_detailsPassed() throws YachiyoException {
+        Event event = new Event(
+                "Workshop",
+                LocalDateTime.of(2026, 9, 20, 9, 0),
+                LocalDateTime.of(2026, 9, 20, 17, 0)
+        );
+        TaskList tasks = new TaskList(event);
+        Command command = Parser.parse("edit 1 /to 20/9/2026 1800");
+
+        assertInstanceOf(EditEventEndDateTimeCommand.class, command);
+        command.execute(tasks, ui, storage);
+        Event editedEvent = (Event) tasks.get(1);
+        assertEquals(LocalDateTime.of(2026, 9, 20, 18, 0), editedEvent.getTo());
+    }
+
+    @Test
     public void parse_todoCommand_descriptionPassed() throws YachiyoException {
         Task task = executeAddCommand("  ToDo   Read book  ");
 
@@ -149,6 +209,50 @@ public class ParserTest {
     @Test
     public void parse_taskNumberNotWholeNumber_exceptionThrown() {
         assertThrows(YachiyoException.class, () -> Parser.parse("delete two"));
+    }
+
+    @Test
+    public void parse_editTaskNumberMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit"));
+    }
+
+    @Test
+    public void parse_editTaskNumberNotWholeNumber_exceptionThrown() {
+        assertThrows(YachiyoException.class, () ->
+                Parser.parse("edit one /description Return book"));
+    }
+
+    @Test
+    public void parse_editFieldMissing_exceptionThrown() {
+        YachiyoException exception = assertThrows(
+                YachiyoException.class, () -> Parser.parse("edit 1"));
+
+        assertEquals(
+                "Which detail should I edit? Try /description, /by, /from, or /to "
+                        + "followed by its new value.",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    public void parse_editFieldUnsupported_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /priority high"));
+    }
+
+    @Test
+    public void parse_editDescriptionMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /description"));
+    }
+
+    @Test
+    public void parse_editDateTimeMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /by"));
+    }
+
+    @Test
+    public void parse_editDateTimeInvalid_exceptionThrown() {
+        assertThrows(YachiyoException.class, () ->
+                Parser.parse("edit 1 /from 31/2/2026 1000"));
     }
 
     @Test
@@ -251,6 +355,11 @@ public class ParserTest {
 
         @Override
         public void showTaskDeleted(Task task, int totalCount) {
+            // No output is needed while testing parsing.
+        }
+
+        @Override
+        public void showTaskEdited(Task task) {
             // No output is needed while testing parsing.
         }
 

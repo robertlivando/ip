@@ -23,6 +23,36 @@ public class Deadline extends Task {
     }
 
     /**
+     * Returns the date and time by which this deadline must be completed.
+     *
+     * @return deadline date and time.
+     */
+    public LocalDateTime getBy() {
+        return by;
+    }
+
+    /**
+     * Returns a copy of this deadline with the specified description.
+     *
+     * @param description replacement description.
+     * @return deadline containing the replacement description.
+     */
+    @Override
+    public Deadline withDescription(String description) {
+        return copyCompletionStatusTo(new Deadline(description, by));
+    }
+
+    /**
+     * Returns a copy of this deadline with the specified due date-time.
+     *
+     * @param by replacement due date and time.
+     * @return deadline containing the replacement due date-time.
+     */
+    public Deadline withBy(LocalDateTime by) {
+        return copyCompletionStatusTo(new Deadline(getDescription(), by));
+    }
+
+    /**
      * Returns this deadline in the format used by the storage file.
      *
      * @return Stored deadline representation.

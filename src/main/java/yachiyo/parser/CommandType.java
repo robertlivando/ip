@@ -14,6 +14,7 @@ public enum CommandType {
     DEADLINE,
     EVENT,
     ON,
+    EDIT,
     DELETE,
     BYE;
 

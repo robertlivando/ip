@@ -88,5 +88,10 @@ public class TaskTest {
         private TestTask(String description) {
             super(description);
         }
+
+        @Override
+        public Task withDescription(String description) {
+            return copyCompletionStatusTo(new TestTask(description));
+        }
     }
 }

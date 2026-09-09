@@ -9,6 +9,10 @@ import java.time.format.ResolverStyle;
 import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
+import yachiyo.command.EditDeadlineDateTimeCommand;
+import yachiyo.command.EditDescriptionCommand;
+import yachiyo.command.EditEventEndDateTimeCommand;
+import yachiyo.command.EditEventStartDateTimeCommand;
 import yachiyo.command.ExitCommand;
 import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
@@ -68,9 +72,82 @@ public final class Parser {
             case DEADLINE -> new AddCommand(parseDeadline(arguments));
             case EVENT -> new AddCommand(parseEvent(arguments));
             case ON -> new FindOnDateCommand(parseDate(arguments));
+            case EDIT -> parseEdit(arguments);
             case DELETE -> new DeleteCommand(parseTaskNumber(arguments));
             case BYE -> new ExitCommand();
         };
+    }
+
+    /**
+     * Creates a command that edits one detail of a numbered task.
+     *
+     * @param arguments task number, field selector, and replacement value.
+     * @return command for the selected task field.
+     * @throws YachiyoException if the task number, field, or replacement value is invalid.
+     */
+    private static Command parseEdit(String arguments) throws YachiyoException {
+        if (arguments.isBlank()) {
+            throw new YachiyoException(
+                    "Which task should I edit? Tell me its number!"
+            );
+        }
+
+        String[] editParts = arguments.split("\\s+", 3);
+        int taskNumber = parseTaskNumber(editParts[0]);
+        if (editParts.length < 2) {
+            throw new YachiyoException(
+                    "Which detail should I edit? Try /description, /by, /from, or /to "
+                            + "followed by its new value."
+            );
+        }
+
+        String field = editParts[1];
+        String value = editParts.length == 3 ? editParts[2].trim() : "";
+        return switch (field) {
+            case "/description" -> new EditDescriptionCommand(
+                    taskNumber, parseEditDescription(value));
+            case "/by" -> new EditDeadlineDateTimeCommand(
+                    taskNumber, parseEditDateTime(value, "deadline"));
+            case "/from" -> new EditEventStartDateTimeCommand(
+                    taskNumber, parseEditDateTime(value, "event start"));
+            case "/to" -> new EditEventEndDateTimeCommand(
+                    taskNumber, parseEditDateTime(value, "event end"));
+            default -> throw new YachiyoException(
+                    "I can't edit that detail. Try /description, /by, /from, or /to."
+            );
+        };
+    }
+
+    /**
+     * Returns a non-blank replacement task description.
+     *
+     * @param description replacement description supplied by the user.
+     * @return validated replacement description.
+     * @throws YachiyoException if the description is missing.
+     */
+    private static String parseEditDescription(String description) throws YachiyoException {
+        if (description.isBlank()) {
+            throw new YachiyoException("What should the new description be?");
+        }
+        return description;
+    }
+
+    /**
+     * Parses a replacement date-time supplied to the {@code edit} command.
+     *
+     * @param dateTimeText replacement date-time text.
+     * @param fieldName name used to identify the field in error messages.
+     * @return parsed replacement date-time.
+     * @throws YachiyoException if the replacement date-time is missing or invalid.
+     */
+    private static LocalDateTime parseEditDateTime(String dateTimeText, String fieldName)
+            throws YachiyoException {
+        if (dateTimeText.isBlank()) {
+            throw new YachiyoException(
+                    String.format("What should the new %s be?", fieldName)
+            );
+        }
+        return parseDateTime(dateTimeText, fieldName);
     }
 
     /**

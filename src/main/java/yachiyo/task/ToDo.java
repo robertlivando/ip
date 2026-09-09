@@ -14,6 +14,17 @@ public class ToDo extends Task {
     }
 
     /**
+     * Returns a copy of this to-do with the specified description.
+     *
+     * @param description replacement description.
+     * @return to-do containing the replacement description.
+     */
+    @Override
+    public ToDo withDescription(String description) {
+        return copyCompletionStatusTo(new ToDo(description));
+    }
+
+    /**
      * Returns this to-do task in the format used by the storage file.
      *
      * @return Stored to-do task representation.

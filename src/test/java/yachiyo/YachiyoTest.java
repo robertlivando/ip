@@ -36,6 +36,36 @@ public class YachiyoTest {
     }
 
     @Test
+    public void getResponse_editDescription_taskUpdatedAndStored() {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+        yachiyo.getResponse("todo prepare slides");
+
+        String editResponse = yachiyo.getResponse(
+                "edit 1 /description prepare presentation slides"
+        );
+        String storedTaskResponse = new Yachiyo(dataFilePath).getResponse("list");
+
+        assertTrue(editResponse.contains("I've updated this task"));
+        assertTrue(editResponse.contains("[T][ ] prepare presentation slides"));
+        assertTrue(storedTaskResponse.contains("1. [T][ ] prepare presentation slides"));
+    }
+
+    @Test
+    public void getResponse_editDeadline_taskUpdatedAndStored() {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+        yachiyo.getResponse("deadline submit report /by 20/9/2026 1700");
+
+        String editResponse = yachiyo.getResponse("edit 1 /by 21/9/2026 1800");
+        String storedTaskResponse = new Yachiyo(dataFilePath).getResponse("list");
+
+        assertTrue(editResponse.contains("I've updated this task"));
+        assertTrue(editResponse.contains("by: Sep 21 2026, 6:00 PM"));
+        assertTrue(storedTaskResponse.contains("by: Sep 21 2026, 6:00 PM"));
+    }
+
+    @Test
     public void getResponse_invalidCommand_errorReturned() {
         Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
 
