@@ -95,13 +95,9 @@ public class TaskList {
      * @return number of incomplete tasks.
      */
     public int getRemainingTaskCount() {
-        int remainingCount = 0;
-        for (Task task : tasks) {
-            if (!task.isCompleted()) {
-                remainingCount++;
-            }
-        }
-        return remainingCount;
+        return Math.toIntExact(tasks.stream()
+                .filter(task -> !task.isCompleted())
+                .count());
     }
 
     /**
