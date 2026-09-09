@@ -2,6 +2,7 @@ package yachiyo.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -21,6 +22,16 @@ public class TaskTest {
         assertEquals(DESCRIPTION, task.getDescription());
         assertFalse(task.isCompleted());
         assertEquals(" ", task.getStatusIcon());
+    }
+
+    @Test
+    public void constructor_nullDescription_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new TestTask(null));
+    }
+
+    @Test
+    public void constructor_blankDescription_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new TestTask("   "));
     }
 
     @Test

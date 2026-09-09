@@ -43,6 +43,12 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void initialize() {
+        assert scrollPane != null
+                && dialogContainer != null
+                && userInput != null
+                && sendButton != null
+                : "Main-window controls must be injected from FXML";
+
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
@@ -63,6 +69,8 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
+        assert yachiyo != null : "Yachiyo must be supplied before input is handled";
+
         String input = userInput.getText().trim();
         if (input.isEmpty()) {
             return;

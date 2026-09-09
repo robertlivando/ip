@@ -39,6 +39,9 @@ public class DialogBox extends HBox {
             throw new IllegalStateException("Unable to load the dialog box FXML.", e);
         }
 
+        assert dialog != null && displayPicture != null
+                : "Dialog-box controls must be injected from FXML";
+
         dialog.setText(message);
         displayPicture.setImage(image);
     }
@@ -71,6 +74,9 @@ public class DialogBox extends HBox {
      * Flips the dialog box so its profile image appears on the left.
      */
     private void flip() {
+        assert getChildren().size() == 2
+                : "Dialog box must contain exactly a message and profile image";
+
         setAlignment(Pos.TOP_LEFT);
         ObservableList<Node> children = FXCollections.observableArrayList(getChildren());
         Collections.reverse(children);
