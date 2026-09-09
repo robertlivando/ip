@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,10 @@ import org.junit.jupiter.api.Test;
 import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
+import yachiyo.command.EditDeadlineDateTimeCommand;
 import yachiyo.command.EditDescriptionCommand;
+import yachiyo.command.EditEventEndDateTimeCommand;
+import yachiyo.command.EditEventStartDateTimeCommand;
 import yachiyo.command.ExitCommand;
 import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
@@ -98,6 +102,51 @@ public class ParserTest {
         assertInstanceOf(EditDescriptionCommand.class, command);
         command.execute(tasks, ui, storage);
         assertEquals("Return book", tasks.get(1).getDescription());
+    }
+
+    @Test
+    public void parse_editDeadlineCommand_detailsPassed() throws YachiyoException {
+        Deadline deadline = new Deadline(
+                "Submit report", LocalDateTime.of(2026, 9, 20, 17, 0));
+        TaskList tasks = new TaskList(deadline);
+        Command command = Parser.parse("edit 1 /by 21/9/2026 1800");
+
+        assertInstanceOf(EditDeadlineDateTimeCommand.class, command);
+        command.execute(tasks, ui, storage);
+        Deadline editedDeadline = (Deadline) tasks.get(1);
+        assertEquals(LocalDateTime.of(2026, 9, 21, 18, 0), editedDeadline.getBy());
+    }
+
+    @Test
+    public void parse_editEventStartCommand_detailsPassed() throws YachiyoException {
+        Event event = new Event(
+                "Workshop",
+                LocalDateTime.of(2026, 9, 20, 9, 0),
+                LocalDateTime.of(2026, 9, 20, 17, 0)
+        );
+        TaskList tasks = new TaskList(event);
+        Command command = Parser.parse("edit 1 /from 20/9/2026 1000");
+
+        assertInstanceOf(EditEventStartDateTimeCommand.class, command);
+        command.execute(tasks, ui, storage);
+        Event editedEvent = (Event) tasks.get(1);
+        assertEquals(LocalDateTime.of(2026, 9, 20, 10, 0), editedEvent.getFrom());
+    }
+
+    @Test
+    public void parse_editEventEndCommand_detailsPassed() throws YachiyoException {
+        Event event = new Event(
+                "Workshop",
+                LocalDateTime.of(2026, 9, 20, 9, 0),
+                LocalDateTime.of(2026, 9, 20, 17, 0)
+        );
+        TaskList tasks = new TaskList(event);
+        Command command = Parser.parse("edit 1 /to 20/9/2026 1800");
+
+        assertInstanceOf(EditEventEndDateTimeCommand.class, command);
+        command.execute(tasks, ui, storage);
+        Event editedEvent = (Event) tasks.get(1);
+        assertEquals(LocalDateTime.of(2026, 9, 20, 18, 0), editedEvent.getTo());
     }
 
     @Test
@@ -186,6 +235,17 @@ public class ParserTest {
     @Test
     public void parse_editDescriptionMissing_exceptionThrown() {
         assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /description"));
+    }
+
+    @Test
+    public void parse_editDateTimeMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /by"));
+    }
+
+    @Test
+    public void parse_editDateTimeInvalid_exceptionThrown() {
+        assertThrows(YachiyoException.class, () ->
+                Parser.parse("edit 1 /from 31/2/2026 1000"));
     }
 
     @Test
