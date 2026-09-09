@@ -19,6 +19,23 @@ import yachiyo.task.ToDo;
  * Loads and saves Yachiyo's task data on the hard disk.
  */
 public class Storage {
+    private static final String TASK_FIELD_DELIMITER_PATTERN = " \\| ";
+    private static final String TASK_TYPE_TODO = "TODO";
+    private static final String TASK_TYPE_DEADLINE = "DEADLINE";
+    private static final String TASK_TYPE_EVENT = "EVENT";
+    private static final String COMPLETION_STATUS_INCOMPLETE = "0";
+    private static final String COMPLETION_STATUS_COMPLETE = "1";
+
+    private static final int TASK_TYPE_FIELD_INDEX = 0;
+    private static final int COMPLETION_STATUS_FIELD_INDEX = 1;
+    private static final int DESCRIPTION_FIELD_INDEX = 2;
+    private static final int DEADLINE_DATE_TIME_FIELD_INDEX = 3;
+    private static final int EVENT_START_DATE_TIME_FIELD_INDEX = 3;
+    private static final int EVENT_END_DATE_TIME_FIELD_INDEX = 4;
+    private static final int TODO_FIELD_COUNT = 3;
+    private static final int DEADLINE_FIELD_COUNT = 4;
+    private static final int EVENT_FIELD_COUNT = 5;
+
     private final Path filePath;
 
     /**
@@ -62,38 +79,60 @@ public class Storage {
      * @throws YachiyoException if the saved task data is malformed.
      */
     private Task parseTask(String line) throws YachiyoException {
-        String[] taskParts = line.split(" \\| ", -1);
-        if (taskParts.length < 3) {
+        String[] taskParts = line.split(TASK_FIELD_DELIMITER_PATTERN, -1);
+        if (taskParts.length < TODO_FIELD_COUNT) {
             throw invalidDataException();
         }
 
-        Task task = switch (taskParts[0]) {
-            case "TODO" -> {
-                validateTaskParts(taskParts, 3);
-                yield new ToDo(taskParts[2]);
+        Task task = createTaskFromParts(taskParts);
+        restoreCompletionStatus(task, taskParts[COMPLETION_STATUS_FIELD_INDEX]);
+        return task;
+    }
+
+    /**
+     * Creates a task from the type-specific fields in a saved record.
+     *
+     * @param taskParts saved task fields.
+     * @return reconstructed task with its type-specific fields populated.
+     * @throws YachiyoException if the task type or its fields are invalid.
+     */
+    private Task createTaskFromParts(String[] taskParts) throws YachiyoException {
+        return switch (taskParts[TASK_TYPE_FIELD_INDEX]) {
+            case TASK_TYPE_TODO -> {
+                validateTaskParts(taskParts, TODO_FIELD_COUNT);
+                yield new ToDo(taskParts[DESCRIPTION_FIELD_INDEX]);
             }
-            case "DEADLINE" -> {
-                validateTaskParts(taskParts, 4);
-                yield new Deadline(taskParts[2], parseDateTime(taskParts[3]));
+            case TASK_TYPE_DEADLINE -> {
+                validateTaskParts(taskParts, DEADLINE_FIELD_COUNT);
+                yield new Deadline(taskParts[DESCRIPTION_FIELD_INDEX],
+                        parseDateTime(taskParts[DEADLINE_DATE_TIME_FIELD_INDEX]));
             }
-            case "EVENT" -> {
-                validateTaskParts(taskParts, 5);
-                LocalDateTime from = parseDateTime(taskParts[3]);
-                LocalDateTime to = parseDateTime(taskParts[4]);
+            case TASK_TYPE_EVENT -> {
+                validateTaskParts(taskParts, EVENT_FIELD_COUNT);
+                LocalDateTime from = parseDateTime(taskParts[EVENT_START_DATE_TIME_FIELD_INDEX]);
+                LocalDateTime to = parseDateTime(taskParts[EVENT_END_DATE_TIME_FIELD_INDEX]);
                 if (!to.isAfter(from)) {
                     throw invalidDataException();
                 }
-                yield new Event(taskParts[2], from, to);
+                yield new Event(taskParts[DESCRIPTION_FIELD_INDEX], from, to);
             }
             default -> throw invalidDataException();
         };
+    }
 
-        if (taskParts[1].equals("1")) {
+    /**
+     * Restores a task's completion state from its saved status field.
+     *
+     * @param task task whose completion state should be restored.
+     * @param completionStatus saved completion status.
+     * @throws YachiyoException if the completion status is invalid.
+     */
+    private void restoreCompletionStatus(Task task, String completionStatus) throws YachiyoException {
+        if (completionStatus.equals(COMPLETION_STATUS_COMPLETE)) {
             task.markAsDone();
-        } else if (!taskParts[1].equals("0")) {
+        } else if (!completionStatus.equals(COMPLETION_STATUS_INCOMPLETE)) {
             throw invalidDataException();
         }
-        return task;
     }
 
     /**

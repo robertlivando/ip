@@ -2,18 +2,11 @@ package yachiyo.task;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 /**
  * Represents a task that must be completed by a specific date and time.
  */
 public class Deadline extends Task {
-    private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("MMM dd yyyy, h:mm a", Locale.ENGLISH);
-    private static final DateTimeFormatter STORAGE_DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm");
-
     private final LocalDateTime by;
 
     /**
@@ -37,7 +30,7 @@ public class Deadline extends Task {
     @Override
     public String toFileFormat() {
         return "DEADLINE | " + super.toFileFormat() + " | "
-                + this.by.format(STORAGE_DATE_TIME_FORMATTER);
+                + TaskDateTimeFormatter.formatForStorage(this.by);
     }
 
     /**
@@ -59,6 +52,6 @@ public class Deadline extends Task {
     @Override
     public String toString() {
         return "[D]" + super.toString() + " (by: "
-                + this.by.format(DISPLAY_DATE_TIME_FORMATTER) + ")";
+                + TaskDateTimeFormatter.formatForDisplay(this.by) + ")";
     }
 }

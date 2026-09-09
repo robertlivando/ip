@@ -2,18 +2,11 @@ package yachiyo.task;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 /**
  * Represents an event that takes place between a start and end date-time.
  */
 public class Event extends Task {
-    private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("MMM dd yyyy, h:mm a", Locale.ENGLISH);
-    private static final DateTimeFormatter STORAGE_DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm");
-
     private final LocalDateTime from;
     private final LocalDateTime to;
 
@@ -42,8 +35,8 @@ public class Event extends Task {
     @Override
     public String toFileFormat() {
         return String.format("EVENT | %s | %s | %s", super.toFileFormat(),
-                this.from.format(STORAGE_DATE_TIME_FORMATTER),
-                this.to.format(STORAGE_DATE_TIME_FORMATTER));
+                TaskDateTimeFormatter.formatForStorage(this.from),
+                TaskDateTimeFormatter.formatForStorage(this.to));
     }
 
     /**
@@ -67,7 +60,7 @@ public class Event extends Task {
     @Override
     public String toString() {
         return String.format("[E]%s (from: %s, to: %s)", super.toString(),
-                this.from.format(DISPLAY_DATE_TIME_FORMATTER),
-                this.to.format(DISPLAY_DATE_TIME_FORMATTER));
+                TaskDateTimeFormatter.formatForDisplay(this.from),
+                TaskDateTimeFormatter.formatForDisplay(this.to));
     }
 }

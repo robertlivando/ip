@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import yachiyo.exception.YachiyoException;
 
@@ -116,16 +117,9 @@ public class TaskList {
      */
     public List<NumberedTask> findTasks(String keyword) {
         String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
-        List<NumberedTask> matchingTasks = new ArrayList<>();
-
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            String normalizedDescription = task.getDescription().toLowerCase(Locale.ROOT);
-            if (normalizedDescription.contains(normalizedKeyword)) {
-                matchingTasks.add(new NumberedTask(i + 1, task));
-            }
-        }
-        return List.copyOf(matchingTasks);
+        return getNumberedTasksMatching(task -> task.getDescription()
+                .toLowerCase(Locale.ROOT)
+                .contains(normalizedKeyword));
     }
 
     /**
@@ -136,10 +130,20 @@ public class TaskList {
      * @return matching numbered tasks.
      */
     public List<NumberedTask> getTasksOnDate(LocalDate date) {
+        return getNumberedTasksMatching(task -> task.occursOn(date));
+    }
+
+    /**
+     * Returns tasks satisfying the supplied condition with their original task numbers.
+     *
+     * @param condition condition used to select tasks.
+     * @return matching numbered tasks.
+     */
+    private List<NumberedTask> getNumberedTasksMatching(Predicate<Task> condition) {
         List<NumberedTask> matchingTasks = new ArrayList<>();
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
-            if (task.occursOn(date)) {
+            if (condition.test(task)) {
                 matchingTasks.add(new NumberedTask(i + 1, task));
             }
         }

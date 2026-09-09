@@ -40,8 +40,6 @@ public class FindOnDateCommand extends Command {
         }
 
         ui.showTasksOnDateHeader(date);
-        for (NumberedTask numberedTask : matchingTasks) {
-            ui.showIndexedTask(numberedTask.number(), numberedTask.task());
-        }
+        ui.showNumberedTasks(matchingTasks);
     }
 }

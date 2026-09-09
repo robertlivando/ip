@@ -39,8 +39,6 @@ public class FindCommand extends Command {
         }
 
         ui.showMatchingTasksHeader(keyword);
-        for (NumberedTask numberedTask : matchingTasks) {
-            ui.showIndexedTask(numberedTask.number(), numberedTask.task());
-        }
+        ui.showNumberedTasks(matchingTasks);
     }
 }
