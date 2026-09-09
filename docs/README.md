@@ -26,6 +26,7 @@ sessions.
 | Find on a date | `on DATE` | `on 20/9/2026` |
 | Mark as complete | `mark TASK_NUMBER` | `mark 2` |
 | Mark as incomplete | `unmark TASK_NUMBER` | `unmark 2` |
+| Edit one task detail | `edit TASK_NUMBER FIELD VALUE` | `edit 2 /description Submit final report` |
 | Delete a task | `delete TASK_NUMBER` | `delete 2` |
 | Exit Yachiyo | `bye` | `bye` |
 
@@ -35,6 +36,7 @@ sessions.
 - Dates use `d/M/yyyy`, for example `2/12/2026`.
 - Date-times use `d/M/yyyy HHmm`, for example `2/12/2026 1800`.
 - Task numbers start from 1 and appear in the results of `list`, `find`, and `on`.
+- Each `edit` command accepts one field selector and changes only that field.
 - `[T]`, `[D]`, and `[E]` identify to-dos, deadlines, and events respectively.
 - `[X]` identifies a completed task, while `[ ]` identifies an incomplete task.
 
@@ -121,6 +123,32 @@ Example:
 ```text
 unmark 2
 ```
+
+## Editing a task
+
+Format: `edit TASK_NUMBER FIELD VALUE`
+
+Each command edits one field. Yachiyo preserves the task type, completion status, and every field
+that was not selected.
+
+| Field | Supported task types | Value |
+| --- | --- | --- |
+| `/description` | To-do, deadline, and event | A non-empty description |
+| `/by` | Deadline | A date-time in `d/M/yyyy HHmm` format |
+| `/from` | Event | A date-time earlier than the event's unchanged end |
+| `/to` | Event | A date-time later than the event's unchanged start |
+
+Examples:
+
+```text
+edit 2 /description Submit final report
+edit 2 /by 21/9/2026 1800
+edit 3 /from 21/9/2026 1400
+edit 3 /to 21/9/2026 1600
+```
+
+Yachiyo rejects fields that do not apply to the selected task. It also rejects an event time edit
+that would make the event end at or before its start.
 
 ## Deleting a task
 
