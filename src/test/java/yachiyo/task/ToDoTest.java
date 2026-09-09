@@ -1,6 +1,8 @@
 package yachiyo.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,5 +34,16 @@ public class ToDoTest {
         toDo.markAsDone();
 
         assertEquals("[T][X] Read book", toDo.toString());
+    }
+
+    @Test
+    public void withDescription_completedToDo_descriptionChangedAndStatusPreserved() {
+        toDo.markAsDone();
+
+        ToDo editedToDo = toDo.withDescription("Return book");
+
+        assertNotSame(toDo, editedToDo);
+        assertEquals("Return book", editedToDo.getDescription());
+        assertTrue(editedToDo.isCompleted());
     }
 }

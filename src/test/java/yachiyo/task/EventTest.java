@@ -2,6 +2,7 @@ package yachiyo.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -108,5 +109,46 @@ public class EventTest {
                         + "to: Aug 22 2026, 5:00 PM)",
                 multiDayEvent.toString()
         );
+    }
+
+    @Test
+    public void withDescription_completedEvent_onlyDescriptionChanged() {
+        multiDayEvent.markAsDone();
+
+        Event editedEvent = multiDayEvent.withDescription("Orientation briefing");
+
+        assertNotSame(multiDayEvent, editedEvent);
+        assertEquals("Orientation briefing", editedEvent.getDescription());
+        assertEquals(START, editedEvent.getFrom());
+        assertEquals(END, editedEvent.getTo());
+        assertTrue(editedEvent.isCompleted());
+    }
+
+    @Test
+    public void withFrom_completedEvent_onlyStartDateTimeChanged() {
+        LocalDateTime replacementStart = START.plusHours(1);
+        multiDayEvent.markAsDone();
+
+        Event editedEvent = multiDayEvent.withFrom(replacementStart);
+
+        assertNotSame(multiDayEvent, editedEvent);
+        assertEquals("Orientation camp", editedEvent.getDescription());
+        assertEquals(replacementStart, editedEvent.getFrom());
+        assertEquals(END, editedEvent.getTo());
+        assertTrue(editedEvent.isCompleted());
+    }
+
+    @Test
+    public void withTo_completedEvent_onlyEndDateTimeChanged() {
+        LocalDateTime replacementEnd = END.plusHours(1);
+        multiDayEvent.markAsDone();
+
+        Event editedEvent = multiDayEvent.withTo(replacementEnd);
+
+        assertNotSame(multiDayEvent, editedEvent);
+        assertEquals("Orientation camp", editedEvent.getDescription());
+        assertEquals(START, editedEvent.getFrom());
+        assertEquals(replacementEnd, editedEvent.getTo());
+        assertTrue(editedEvent.isCompleted());
     }
 }

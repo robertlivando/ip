@@ -125,6 +125,37 @@ public class TaskListTest {
     }
 
     @Test
+    public void replace_validTaskNumber_onlySelectedTaskReplaced() throws YachiyoException {
+        Task firstTask = new ToDo("Read book");
+        Task replacementTask = new ToDo("Submit report");
+        Task lastTask = new ToDo("Return book");
+        TaskList taskList = new TaskList(List.of(firstTask, new ToDo("Draft report"), lastTask));
+
+        taskList.replace(2, replacementTask);
+
+        assertEquals(List.of(firstTask, replacementTask, lastTask), taskList.getTasks());
+    }
+
+    @Test
+    public void replace_taskNumberOutsideList_exceptionThrownAndListUnchanged() {
+        Task originalTask = new ToDo("Read book");
+        TaskList taskList = new TaskList(List.of(originalTask));
+
+        assertThrows(YachiyoException.class, () ->
+                taskList.replace(2, new ToDo("Return book")));
+        assertEquals(List.of(originalTask), taskList.getTasks());
+    }
+
+    @Test
+    public void replace_nullTask_assertionErrorThrownAndListUnchanged() {
+        Task originalTask = new ToDo("Read book");
+        TaskList taskList = new TaskList(List.of(originalTask));
+
+        assertThrows(AssertionError.class, () -> taskList.replace(1, null));
+        assertEquals(List.of(originalTask), taskList.getTasks());
+    }
+
+    @Test
     public void delete_validTaskNumber_taskRemovedAndReturned() throws YachiyoException {
         Task firstTask = new ToDo("Read book");
         Task deletedTask = new ToDo("Return book");

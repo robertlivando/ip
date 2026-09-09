@@ -69,6 +69,19 @@ public class TaskList {
     }
 
     /**
+     * Replaces the task with the supplied one-based task number.
+     *
+     * @param taskNumber one-based number of the task to replace.
+     * @param replacementTask task that should take its place.
+     * @throws YachiyoException if the task number is outside the list.
+     */
+    public void replace(int taskNumber, Task replacementTask) throws YachiyoException {
+        assert replacementTask != null : "Replacement task must not be null";
+
+        tasks.set(toIndex(taskNumber), replacementTask);
+    }
+
+    /**
      * Deletes and returns the task with the supplied one-based task number.
      *
      * @param taskNumber one-based task number.

@@ -28,6 +28,55 @@ public class Event extends Task {
     }
 
     /**
+     * Returns the date and time when this event starts.
+     *
+     * @return event start date and time.
+     */
+    public LocalDateTime getFrom() {
+        return from;
+    }
+
+    /**
+     * Returns the date and time when this event ends.
+     *
+     * @return event end date and time.
+     */
+    public LocalDateTime getTo() {
+        return to;
+    }
+
+    /**
+     * Returns a copy of this event with the specified description.
+     *
+     * @param description replacement description.
+     * @return event containing the replacement description.
+     */
+    @Override
+    public Event withDescription(String description) {
+        return copyCompletionStatusTo(new Event(description, from, to));
+    }
+
+    /**
+     * Returns a copy of this event with the specified start date-time.
+     *
+     * @param from replacement start date and time.
+     * @return event containing the replacement start date-time.
+     */
+    public Event withFrom(LocalDateTime from) {
+        return copyCompletionStatusTo(new Event(getDescription(), from, to));
+    }
+
+    /**
+     * Returns a copy of this event with the specified end date-time.
+     *
+     * @param to replacement end date and time.
+     * @return event containing the replacement end date-time.
+     */
+    public Event withTo(LocalDateTime to) {
+        return copyCompletionStatusTo(new Event(getDescription(), from, to));
+    }
+
+    /**
      * Returns this event in the format used by the storage file.
      *
      * @return Stored event representation.
