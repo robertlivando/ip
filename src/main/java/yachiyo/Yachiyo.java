@@ -92,7 +92,6 @@ public class Yachiyo {
             while (!isExit && ui.hasNextCommand()) {
                 String userInput = ui.readCommand().trim();
 
-                // Skip empty inputs
                 if (userInput.isEmpty()) {
                     continue;
                 }
