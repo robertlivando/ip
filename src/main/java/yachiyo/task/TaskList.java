@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import yachiyo.exception.YachiyoException;
@@ -38,6 +39,10 @@ public class TaskList {
      * @param tasks initial tasks.
      */
     public TaskList(List<Task> tasks) {
+        assert tasks != null : "Initial task collection must not be null";
+        assert tasks.stream().noneMatch(Objects::isNull)
+                : "Initial task collection must not contain null";
+
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -47,6 +52,8 @@ public class TaskList {
      * @param task task to add.
      */
     public void add(Task task) {
+        assert task != null : "Task to add must not be null";
+
         tasks.add(task);
     }
 
@@ -169,6 +176,9 @@ public class TaskList {
                     String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
             );
         }
-        return taskNumber - 1;
+        int index = taskNumber - 1;
+        assert index >= 0 && index < tasks.size()
+                : "Validated task number must map to an existing index";
+        return index;
     }
 }

@@ -2,6 +2,7 @@ package yachiyo.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -17,6 +18,22 @@ public class EventTest {
     private static final LocalDateTime END = LocalDateTime.of(2026, 8, 22, 17, 0);
 
     private final Event multiDayEvent = new Event("Orientation camp", START, END);
+
+    @Test
+    public void constructor_nullStartDateTime_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new Event("Orientation camp", null, END));
+    }
+
+    @Test
+    public void constructor_nullEndDateTime_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new Event("Orientation camp", START, null));
+    }
+
+    @Test
+    public void constructor_endNotAfterStart_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new Event("Orientation camp", START, START));
+        assertThrows(AssertionError.class, () -> new Event("Orientation camp", START, START.minusHours(1)));
+    }
 
     @Test
     public void occursOn_dateBeforeEvent_falseReturned() {

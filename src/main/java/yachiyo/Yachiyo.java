@@ -131,6 +131,8 @@ public class Yachiyo {
      * @return true if the command requests that the application exit.
      */
     private boolean executeCommand(String input, Ui outputUi) {
+        assert isInitialized : "Tasks must be initialized before executing a command";
+
         try {
             Command command = Parser.parse(input);
             command.execute(tasks, outputUi, storage);

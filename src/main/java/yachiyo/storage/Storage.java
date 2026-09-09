@@ -109,9 +109,12 @@ public class Storage {
             }
             case TASK_TYPE_EVENT -> {
                 validateTaskParts(taskParts, EVENT_FIELD_COUNT);
-                yield new Event(taskParts[DESCRIPTION_FIELD_INDEX],
-                        parseDateTime(taskParts[EVENT_START_DATE_TIME_FIELD_INDEX]),
-                        parseDateTime(taskParts[EVENT_END_DATE_TIME_FIELD_INDEX]));
+                LocalDateTime from = parseDateTime(taskParts[EVENT_START_DATE_TIME_FIELD_INDEX]);
+                LocalDateTime to = parseDateTime(taskParts[EVENT_END_DATE_TIME_FIELD_INDEX]);
+                if (!to.isAfter(from)) {
+                    throw invalidDataException();
+                }
+                yield new Event(taskParts[DESCRIPTION_FIELD_INDEX], from, to);
             }
             default -> throw invalidDataException();
         };
