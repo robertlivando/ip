@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
+import yachiyo.task.NumberedTask;
 import yachiyo.task.Task;
 
 /**
@@ -172,6 +173,17 @@ public class Ui implements AutoCloseable {
      */
     public void showIndexedTask(int taskNumber, Task task) {
         output.printf("%d. %s%n", taskNumber, task);
+    }
+
+    /**
+     * Displays numbered tasks using their numbers from the complete task list.
+     *
+     * @param numberedTasks tasks and their original task numbers.
+     */
+    public void showNumberedTasks(List<NumberedTask> numberedTasks) {
+        for (NumberedTask numberedTask : numberedTasks) {
+            showIndexedTask(numberedTask.number(), numberedTask.task());
+        }
     }
 
     /**
