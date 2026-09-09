@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
+import yachiyo.command.EditDescriptionCommand;
 import yachiyo.command.ExitCommand;
 import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
@@ -90,6 +91,16 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_editDescriptionCommand_detailsPassed() throws YachiyoException {
+        TaskList tasks = new TaskList(new ToDo("Read book"));
+        Command command = Parser.parse("edit 1 /description Return book");
+
+        assertInstanceOf(EditDescriptionCommand.class, command);
+        command.execute(tasks, ui, storage);
+        assertEquals("Return book", tasks.get(1).getDescription());
+    }
+
+    @Test
     public void parse_todoCommand_descriptionPassed() throws YachiyoException {
         Task task = executeAddCommand("  ToDo   Read book  ");
 
@@ -149,6 +160,32 @@ public class ParserTest {
     @Test
     public void parse_taskNumberNotWholeNumber_exceptionThrown() {
         assertThrows(YachiyoException.class, () -> Parser.parse("delete two"));
+    }
+
+    @Test
+    public void parse_editTaskNumberMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit"));
+    }
+
+    @Test
+    public void parse_editTaskNumberNotWholeNumber_exceptionThrown() {
+        assertThrows(YachiyoException.class, () ->
+                Parser.parse("edit one /description Return book"));
+    }
+
+    @Test
+    public void parse_editFieldMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1"));
+    }
+
+    @Test
+    public void parse_editFieldUnsupported_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /priority high"));
+    }
+
+    @Test
+    public void parse_editDescriptionMissing_exceptionThrown() {
+        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /description"));
     }
 
     @Test
@@ -251,6 +288,11 @@ public class ParserTest {
 
         @Override
         public void showTaskDeleted(Task task, int totalCount) {
+            // No output is needed while testing parsing.
+        }
+
+        @Override
+        public void showTaskEdited(Task task) {
             // No output is needed while testing parsing.
         }
 

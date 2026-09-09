@@ -9,6 +9,7 @@ import java.time.format.ResolverStyle;
 import yachiyo.command.AddCommand;
 import yachiyo.command.Command;
 import yachiyo.command.DeleteCommand;
+import yachiyo.command.EditDescriptionCommand;
 import yachiyo.command.ExitCommand;
 import yachiyo.command.FindCommand;
 import yachiyo.command.FindOnDateCommand;
@@ -68,9 +69,48 @@ public final class Parser {
             case DEADLINE -> new AddCommand(parseDeadline(arguments));
             case EVENT -> new AddCommand(parseEvent(arguments));
             case ON -> new FindOnDateCommand(parseDate(arguments));
+            case EDIT -> parseEdit(arguments);
             case DELETE -> new DeleteCommand(parseTaskNumber(arguments));
             case BYE -> new ExitCommand();
         };
+    }
+
+    /**
+     * Creates a command that edits one detail of a numbered task.
+     *
+     * @param arguments task number, field selector, and replacement value.
+     * @return command for the selected task field.
+     * @throws YachiyoException if the task number, field, or replacement value is invalid.
+     */
+    private static Command parseEdit(String arguments) throws YachiyoException {
+        if (arguments.isBlank()) {
+            throw new YachiyoException(
+                    "Which task should I edit? Tell me its number!"
+            );
+        }
+
+        String[] editParts = arguments.split("\\s+", 3);
+        int taskNumber = parseTaskNumber(editParts[0]);
+        if (editParts.length < 2) {
+            throw new YachiyoException(
+                    "Which detail should I edit? Try /description followed by its new value."
+            );
+        }
+
+        String field = editParts[1];
+        String value = editParts.length == 3 ? editParts[2].trim() : "";
+        if (!field.equals("/description")) {
+            throw new YachiyoException(
+                    "I can't edit that detail. Try /description for now."
+            );
+        }
+        if (value.isBlank()) {
+            throw new YachiyoException(
+                    "What should the new description be?"
+            );
+        }
+
+        return new EditDescriptionCommand(taskNumber, value);
     }
 
     /**
