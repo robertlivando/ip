@@ -1,5 +1,8 @@
 package yachiyo.parser;
 
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
+import static yachiyo.exception.ErrorCategory.WARNING;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -87,7 +90,7 @@ public final class Parser {
      */
     private static Command parseEdit(String arguments) throws YachiyoException {
         if (arguments.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Which task should I edit? Tell me its number!"
             );
         }
@@ -95,7 +98,7 @@ public final class Parser {
         String[] editParts = arguments.split("\\s+", 3);
         int taskNumber = parseTaskNumber(editParts[0]);
         if (editParts.length < 2) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Which detail should I edit? Try /description, /by, /from, or /to "
                             + "followed by its new value."
             );
@@ -112,7 +115,7 @@ public final class Parser {
                     taskNumber, parseEditDateTime(value, "event start"));
             case "/to" -> new EditEventEndDateTimeCommand(
                     taskNumber, parseEditDateTime(value, "event end"));
-            default -> throw new YachiyoException(
+            default -> throw new YachiyoException(INVALID_OPERATION,
                     "I can't edit that detail. Try /description, /by, /from, or /to."
             );
         };
@@ -127,7 +130,7 @@ public final class Parser {
      */
     private static String parseEditDescription(String description) throws YachiyoException {
         if (description.isBlank()) {
-            throw new YachiyoException("What should the new description be?");
+            throw new YachiyoException(WARNING, "What should the new description be?");
         }
         return description;
     }
@@ -143,7 +146,7 @@ public final class Parser {
     private static LocalDateTime parseEditDateTime(String dateTimeText, String fieldName)
             throws YachiyoException {
         if (dateTimeText.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     String.format("What should the new %s be?", fieldName)
             );
         }
@@ -159,7 +162,7 @@ public final class Parser {
      */
     private static String parseKeyword(String keyword) throws YachiyoException {
         if (keyword.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "What should I search for? Tell me a keyword!"
             );
         }
@@ -175,7 +178,7 @@ public final class Parser {
      */
     private static int parseTaskNumber(String arguments) throws YachiyoException {
         if (arguments.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Which task should I use? Tell me its number!"
             );
         }
@@ -183,7 +186,7 @@ public final class Parser {
         try {
             return Integer.parseInt(arguments);
         } catch (NumberFormatException e) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Hmm... task numbers need to be whole numbers, okay?"
             );
         }
@@ -198,7 +201,7 @@ public final class Parser {
      */
     private static LocalDate parseDate(String dateText) throws YachiyoException {
         if (dateText.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Which date should I check? Please enter it as d/M/yyyy."
             );
         }
@@ -206,7 +209,7 @@ public final class Parser {
         try {
             return LocalDate.parse(dateText, DATE_INPUT_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Hmm, please enter the date as d/M/yyyy, for example 2/12/2026."
             );
         }
@@ -221,7 +224,7 @@ public final class Parser {
      */
     private static ToDo parseToDo(String description) throws YachiyoException {
         if (description.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Hmm, this to-do is missing a description. What shall we call it?"
             );
         }
@@ -239,13 +242,13 @@ public final class Parser {
         String[] deadlineParts = taskDetails.split(DEADLINE_DELIMITER_PATTERN, 2);
         String description = deadlineParts[0].trim();
         if (description.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Hmm, this deadline is missing a description. What shall we call it?"
             );
         }
 
         if (deadlineParts.length < 2 || deadlineParts[1].trim().isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "It seems this task is missing a deadline. When should it be completed?"
             );
         }
@@ -265,13 +268,13 @@ public final class Parser {
         String[] eventParts = taskDetails.split(EVENT_START_DELIMITER_PATTERN, 2);
         String description = eventParts[0].trim();
         if (description.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Hmm, this event is missing a description. What shall we call it?"
             );
         }
 
         if (eventParts.length < 2 || eventParts[1].trim().isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "This event still needs a start time. When should it begin?"
             );
         }
@@ -291,13 +294,13 @@ public final class Parser {
         String[] durationParts = eventPeriodText.split(EVENT_END_DELIMITER_PATTERN, 2);
         String fromText = durationParts[0].trim();
         if (fromText.isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "This event still needs a start time. When should it begin?"
             );
         }
 
         if (durationParts.length < 2 || durationParts[1].trim().isBlank()) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "And when should this event come to an end?"
             );
         }
@@ -305,7 +308,8 @@ public final class Parser {
         LocalDateTime from = parseDateTime(fromText, "event start");
         LocalDateTime to = parseDateTime(durationParts[1].trim(), "event end");
         if (!to.isAfter(from)) {
-            throw new YachiyoException("Hmm, the event should end after it starts.");
+            throw new YachiyoException(INVALID_OPERATION,
+                    "Hmm, the event should end after it starts.");
         }
 
         return new EventPeriod(from, to);
@@ -324,7 +328,7 @@ public final class Parser {
         try {
             return LocalDateTime.parse(dateTimeText, DATE_TIME_INPUT_FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     String.format("Hmm, please enter the %s as d/M/yyyy HHmm, "
                             + "for example 2/12/2019 1800.", fieldName)
             );

@@ -1,5 +1,7 @@
 package yachiyo.storage;
 
+import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -67,7 +69,8 @@ public class Storage {
             }
             return tasks;
         } catch (IOException e) {
-            throw new YachiyoException("Oh no! I can't seem to load your tasks from the data file.");
+            throw new YachiyoException(SYSTEM_ERROR,
+                    "Oh no! I can't seem to load your tasks from the data file.");
         }
     }
 
@@ -169,7 +172,8 @@ public class Storage {
     }
 
     private YachiyoException invalidDataException() {
-        return new YachiyoException("Oh no! Some task data in the file isn't in the expected format.");
+        return new YachiyoException(SYSTEM_ERROR,
+                "Oh no! Some task data in the file isn't in the expected format.");
     }
 
     /**
@@ -190,7 +194,8 @@ public class Storage {
                     .toList();
             Files.write(filePath, taskLines, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new YachiyoException("Oh no! I can't seem to save your tasks to the data file.");
+            throw new YachiyoException(SYSTEM_ERROR,
+                    "Oh no! I can't seem to save your tasks to the data file.");
         }
     }
 }

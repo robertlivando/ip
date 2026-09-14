@@ -1,5 +1,7 @@
 package yachiyo.command;
 
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
+
 import yachiyo.exception.YachiyoException;
 import yachiyo.storage.Storage;
 import yachiyo.task.Task;
@@ -41,7 +43,7 @@ public abstract class EditCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws YachiyoException {
         if (tasks.isEmpty()) {
-            throw new YachiyoException(
+            throw new YachiyoException(INVALID_OPERATION,
                     "There are no tasks to edit just yet. Let's add one first!"
             );
         }

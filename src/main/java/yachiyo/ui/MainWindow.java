@@ -49,7 +49,8 @@ public class MainWindow extends AnchorPane {
                 && sendButton != null
                 : "Main-window controls must be injected from FXML";
 
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.heightProperty().addListener((observable, oldHeight, newHeight) ->
+                scrollPane.setVvalue(scrollPane.getVmax()));
     }
 
     /**
@@ -77,9 +78,12 @@ public class MainWindow extends AnchorPane {
         }
 
         String response = yachiyo.getResponse(input);
+        DialogBox responseDialog = yachiyo.getLastErrorCategory()
+                .map(category -> DialogBox.getYachiyoErrorDialog(response, yachiyoImage, category))
+                .orElseGet(() -> DialogBox.getYachiyoDialog(response, yachiyoImage));
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getYachiyoDialog(response, yachiyoImage)
+                responseDialog
         );
         userInput.clear();
 

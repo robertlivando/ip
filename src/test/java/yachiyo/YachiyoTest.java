@@ -1,9 +1,16 @@
 package yachiyo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
+import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
+import static yachiyo.exception.ErrorCategory.WARNING;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -72,6 +79,38 @@ public class YachiyoTest {
         String response = yachiyo.getResponse("dance");
 
         assertEquals("Oh? I don’t recognize that command just yet. Could you try another one?", response);
+        assertEquals(Optional.of(WARNING), yachiyo.getLastErrorCategory());
+    }
+
+    @Test
+    public void getResponse_invalidOperation_errorCategoryReturned() {
+        Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
+
+        yachiyo.getResponse("delete 1");
+
+        assertEquals(Optional.of(INVALID_OPERATION), yachiyo.getLastErrorCategory());
+    }
+
+    @Test
+    public void getResponse_malformedData_systemErrorCategoryReturned() throws IOException {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Files.writeString(dataFilePath, "malformed task data");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+
+        String response = yachiyo.getResponse("list");
+
+        assertTrue(response.contains("Some task data in the file isn't in the expected format"));
+        assertEquals(Optional.of(SYSTEM_ERROR), yachiyo.getLastErrorCategory());
+    }
+
+    @Test
+    public void getResponse_successAfterError_errorCategoryCleared() {
+        Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
+        yachiyo.getResponse("dance");
+
+        yachiyo.getResponse("list");
+
+        assertFalse(yachiyo.getLastErrorCategory().isPresent());
     }
 
     @Test

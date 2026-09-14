@@ -1,5 +1,7 @@
 package yachiyo.command;
 
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
+
 import java.time.LocalDateTime;
 
 import yachiyo.exception.YachiyoException;
@@ -28,7 +30,8 @@ public class EditDeadlineDateTimeCommand extends EditCommand {
     @Override
     protected Task createEditedTask(Task task) throws YachiyoException {
         if (!(task instanceof Deadline deadline)) {
-            throw new YachiyoException("Only deadline tasks have a /by date to edit.");
+            throw new YachiyoException(INVALID_OPERATION,
+                    "Only deadline tasks have a /by date to edit.");
         }
         return deadline.withBy(by);
     }

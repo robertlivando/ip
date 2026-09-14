@@ -26,6 +26,48 @@
     -fx-text-fill: #fff8e7;
 }
 
+.error-heading {
+    -fx-font-weight: bold;
+    -fx-underline: true;
+}
+
+.warning-label {
+    -fx-background-color: linear-gradient(to bottom right, #fff1bd, #e8c76c);
+    -fx-border-color: #c38a22;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-text-fill: #3c2b0f;
+}
+
+.warning-label .error-heading {
+    -fx-text-fill: #3c2b0f;
+}
+
+.invalid-operation-label {
+    -fx-background-color: linear-gradient(to bottom right, #9b5746, #64312f);
+    -fx-border-color: #efa265;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-text-fill: #fff8e7;
+}
+
+.invalid-operation-label .error-heading {
+    -fx-text-fill: #fff8e7;
+}
+
+.system-error-label {
+    -fx-background-color: linear-gradient(to bottom right, #741f35, #3f101e);
+    -fx-border-color: #ff7582;
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 75, 92, 0.48), 16, 0.20, 0, 4);
+    -fx-text-fill: #fff4f4;
+}
+
+.system-error-label .error-heading {
+    -fx-text-fill: #fff4f4;
+}
+
 .profile-image {
     -fx-effect: dropshadow(gaussian, rgba(247, 232, 189, 0.42), 14, 0.18, 0, 4);
     -fx-opacity: 0.94;

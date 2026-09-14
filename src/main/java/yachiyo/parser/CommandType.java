@@ -1,5 +1,7 @@
 package yachiyo.parser;
 
+import static yachiyo.exception.ErrorCategory.WARNING;
+
 import yachiyo.exception.YachiyoException;
 
 /**
@@ -29,7 +31,7 @@ public enum CommandType {
         try {
             return CommandType.valueOf(command.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new YachiyoException(
+            throw new YachiyoException(WARNING,
                     "Oh? I don’t recognize that command just yet. Could you try another one?"
             );
         }

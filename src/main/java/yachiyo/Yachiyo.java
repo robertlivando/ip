@@ -2,8 +2,10 @@ package yachiyo;
 
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import yachiyo.command.Command;
+import yachiyo.exception.ErrorCategory;
 import yachiyo.exception.YachiyoException;
 import yachiyo.parser.Parser;
 import yachiyo.storage.Storage;
@@ -21,6 +23,7 @@ public class Yachiyo {
     private final Ui ui = new Ui();
     private boolean isInitialized;
     private boolean isExitRequested;
+    private ErrorCategory lastErrorCategory;
 
     /**
      * Creates a task manager backed by the default data file.
@@ -54,12 +57,22 @@ public class Yachiyo {
      * @return response produced by parsing and executing the command.
      */
     public String getResponse(String input) {
+        lastErrorCategory = null;
         StringWriter responseWriter = new StringWriter();
         try (Ui responseUi = new Ui(responseWriter)) {
             initializeTasks(responseUi);
             isExitRequested = executeCommand(input.trim(), responseUi);
         }
         return responseWriter.toString().stripTrailing();
+    }
+
+    /**
+     * Returns the category of the most recent response when it represents an error.
+     *
+     * @return error category, or an empty value if the response was successful.
+     */
+    public Optional<ErrorCategory> getLastErrorCategory() {
+        return Optional.ofNullable(lastErrorCategory);
     }
 
     /**
@@ -117,6 +130,7 @@ public class Yachiyo {
         try {
             tasks = new TaskList(storage.loadTasks());
         } catch (YachiyoException e) {
+            recordError(e);
             outputUi.showError(e.getMessage());
         } finally {
             isInitialized = true;
@@ -138,8 +152,20 @@ public class Yachiyo {
             command.execute(tasks, outputUi, storage);
             return command.isExit();
         } catch (YachiyoException e) {
+            recordError(e);
             outputUi.showError(e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Records an error category while ensuring a system error is never masked by a later error.
+     *
+     * @param error error reported while processing the current response.
+     */
+    private void recordError(YachiyoException error) {
+        if (lastErrorCategory != ErrorCategory.SYSTEM_ERROR) {
+            lastErrorCategory = error.getCategory();
         }
     }
 }

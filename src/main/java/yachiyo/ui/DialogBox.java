@@ -11,11 +11,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
+import yachiyo.exception.ErrorCategory;
 
 /**
  * Displays a chat message beside its sender's profile image.
@@ -86,6 +88,56 @@ public class DialogBox extends HBox {
         DialogBox dialogBox = new DialogBox(message, image);
         dialogBox.flip();
         return dialogBox;
+    }
+
+    /**
+     * Creates a Yachiyo error dialog formatted according to its category.
+     *
+     * @param message explanation of the error.
+     * @param image profile image to display.
+     * @param category category that determines the error format.
+     * @return formatted Yachiyo error dialog box.
+     */
+    public static DialogBox getYachiyoErrorDialog(String message, Image image,
+            ErrorCategory category) {
+        assert category != null : "Error category must not be null";
+
+        DialogBox dialogBox = getYachiyoDialog(message, image);
+        dialogBox.applyErrorFormat(category);
+        return dialogBox;
+    }
+
+    /**
+     * Adds a visible category heading and the corresponding style to an error message.
+     *
+     * @param category category that determines the error format.
+     */
+    private void applyErrorFormat(ErrorCategory category) {
+        String heading;
+        String styleClass;
+        switch (category) {
+            case WARNING:
+                heading = "Check command";
+                styleClass = "warning-label";
+                break;
+            case INVALID_OPERATION:
+                heading = "Cannot complete command";
+                styleClass = "invalid-operation-label";
+                break;
+            case SYSTEM_ERROR:
+                heading = "Storage error";
+                styleClass = "system-error-label";
+                break;
+            default:
+                throw new AssertionError("Unexpected error category: " + category);
+        }
+
+        Label errorHeading = new Label(heading);
+        errorHeading.getStyleClass().add("error-heading");
+        dialog.setContentDisplay(ContentDisplay.TOP);
+        dialog.setGraphic(errorHeading);
+        dialog.setGraphicTextGap(5.0);
+        dialog.getStyleClass().add(styleClass);
     }
 
     /**
