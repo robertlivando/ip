@@ -68,6 +68,49 @@ public class Yachiyo {
     }
 
     /**
+     * Loads saved tasks for interfaces that need task information before the first command.
+     *
+     * @return loading error response, or an empty string when initialization succeeds.
+     */
+    public String initialize() {
+        lastErrorCategory = null;
+        StringWriter responseWriter = new StringWriter();
+        try (Ui responseUi = new Ui(responseWriter)) {
+            initializeTasks(responseUi);
+        }
+        return responseWriter.toString().stripTrailing();
+    }
+
+    /**
+     * Checks whether saved tasks have been loaded successfully.
+     *
+     * @return true if task statistics are available.
+     */
+    public boolean hasLoadedTasks() {
+        return isInitialized;
+    }
+
+    /**
+     * Returns the total number of loaded tasks.
+     *
+     * @return total task count.
+     */
+    public int getTaskCount() {
+        assert isInitialized : "Tasks must be loaded before their total can be retrieved";
+        return tasks.size();
+    }
+
+    /**
+     * Returns the number of loaded tasks that are not completed.
+     *
+     * @return incomplete task count.
+     */
+    public int getRemainingTaskCount() {
+        assert isInitialized : "Tasks must be loaded before their remaining count can be retrieved";
+        return tasks.getRemainingTaskCount();
+    }
+
+    /**
      * Returns the category of the most recent response when it represents an error.
      *
      * @return error category, or an empty value if the response was successful.

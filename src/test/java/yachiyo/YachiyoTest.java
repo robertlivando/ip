@@ -114,6 +114,36 @@ public class YachiyoTest {
     }
 
     @Test
+    public void initialize_savedTasks_taskCountsReturned() {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo originalYachiyo = new Yachiyo(dataFilePath);
+        originalYachiyo.getResponse("todo prepare slides");
+        originalYachiyo.getResponse("deadline submit report /by 20/9/2026 1700");
+        originalYachiyo.getResponse("mark 1");
+        Yachiyo reloadedYachiyo = new Yachiyo(dataFilePath);
+
+        String response = reloadedYachiyo.initialize();
+
+        assertEquals("", response);
+        assertTrue(reloadedYachiyo.hasLoadedTasks());
+        assertEquals(2, reloadedYachiyo.getTaskCount());
+        assertEquals(1, reloadedYachiyo.getRemainingTaskCount());
+    }
+
+    @Test
+    public void initialize_malformedData_systemErrorReturnedAndTasksUnavailable() throws IOException {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Files.writeString(dataFilePath, "malformed task data");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+
+        String response = yachiyo.initialize();
+
+        assertEquals("Oh no! Some task data in the file isn't in the expected format.", response);
+        assertEquals(Optional.of(SYSTEM_ERROR), yachiyo.getLastErrorCategory());
+        assertFalse(yachiyo.hasLoadedTasks());
+    }
+
+    @Test
     public void getGreeting_guiOpened_introductionReturned() {
         Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
 
