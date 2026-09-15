@@ -73,6 +73,48 @@ public class YachiyoTest {
     }
 
     @Test
+    public void getResponse_eventEditedAndMarked_changesPersistAcrossRestart() {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+        yachiyo.getResponse(
+                "event Orientation /from 20/8/2026 0900 /to 22/8/2026 1700");
+
+        String markResponse = yachiyo.getResponse("mark 1");
+        yachiyo.getResponse("edit 1 /from 20/8/2026 1000");
+        yachiyo.getResponse("edit 1 /to 23/8/2026 1800");
+        Yachiyo reloadedYachiyo = new Yachiyo(dataFilePath);
+        String storedTaskResponse = reloadedYachiyo.getResponse("list");
+
+        assertTrue(markResponse.contains("Everything in our lineup is complete"));
+        assertTrue(storedTaskResponse.contains(
+                "1. [E][X] Orientation (from: Aug 20 2026, 10:00 AM, "
+                        + "to: Aug 23 2026, 6:00 PM)"));
+        assertEquals(1, reloadedYachiyo.getTaskCount());
+        assertEquals(0, reloadedYachiyo.getRemainingTaskCount());
+    }
+
+    @Test
+    public void getResponse_unmarkAndDelete_changesPersistAcrossRestart() {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+        yachiyo.getResponse("todo Read book");
+        yachiyo.getResponse("deadline Submit report /by 20/9/2026 1700");
+        yachiyo.getResponse("mark 1");
+
+        String unmarkResponse = yachiyo.getResponse("unmark 1");
+        String deleteResponse = yachiyo.getResponse("delete 2");
+        Yachiyo reloadedYachiyo = new Yachiyo(dataFilePath);
+        String storedTaskResponse = reloadedYachiyo.getResponse("list");
+
+        assertTrue(unmarkResponse.contains("marked it as not done"));
+        assertTrue(deleteResponse.contains("taken this task out of our lineup"));
+        assertTrue(storedTaskResponse.contains("1. [T][ ] Read book"));
+        assertFalse(storedTaskResponse.contains("Submit report"));
+        assertEquals(1, reloadedYachiyo.getTaskCount());
+        assertEquals(1, reloadedYachiyo.getRemainingTaskCount());
+    }
+
+    @Test
     public void getResponse_invalidCommand_errorReturned() {
         Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
 
