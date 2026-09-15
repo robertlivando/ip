@@ -2,8 +2,10 @@ package yachiyo;
 
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import yachiyo.command.Command;
+import yachiyo.exception.ErrorCategory;
 import yachiyo.exception.YachiyoException;
 import yachiyo.parser.Parser;
 import yachiyo.storage.Storage;
@@ -21,6 +23,7 @@ public class Yachiyo {
     private final Ui ui = new Ui();
     private boolean isInitialized;
     private boolean isExitRequested;
+    private ErrorCategory lastErrorCategory;
 
     /**
      * Creates a task manager backed by the default data file.
@@ -54,12 +57,66 @@ public class Yachiyo {
      * @return response produced by parsing and executing the command.
      */
     public String getResponse(String input) {
+        lastErrorCategory = null;
+        StringWriter responseWriter = new StringWriter();
+        try (Ui responseUi = new Ui(responseWriter)) {
+            if (initializeTasks(responseUi)) {
+                isExitRequested = executeCommand(input.trim(), responseUi);
+            }
+        }
+        return responseWriter.toString().stripTrailing();
+    }
+
+    /**
+     * Loads saved tasks for interfaces that need task information before the first command.
+     *
+     * @return loading error response, or an empty string when initialization succeeds.
+     */
+    public String initialize() {
+        lastErrorCategory = null;
         StringWriter responseWriter = new StringWriter();
         try (Ui responseUi = new Ui(responseWriter)) {
             initializeTasks(responseUi);
-            isExitRequested = executeCommand(input.trim(), responseUi);
         }
         return responseWriter.toString().stripTrailing();
+    }
+
+    /**
+     * Checks whether saved tasks have been loaded successfully.
+     *
+     * @return true if task statistics are available.
+     */
+    public boolean hasLoadedTasks() {
+        return isInitialized;
+    }
+
+    /**
+     * Returns the total number of loaded tasks.
+     *
+     * @return total task count.
+     */
+    public int getTaskCount() {
+        assert isInitialized : "Tasks must be loaded before their total can be retrieved";
+        return tasks.size();
+    }
+
+    /**
+     * Returns the number of loaded tasks that are not completed.
+     *
+     * @return incomplete task count.
+     */
+    public int getRemainingTaskCount() {
+        assert isInitialized : "Tasks must be loaded before their remaining count can be retrieved";
+        return tasks.getRemainingTaskCount();
+    }
+
+    /**
+     * Returns the category of the most recent response when it represents an error.
+     *
+     * @return error category, or an empty value if the response was successful.
+     */
+    public Optional<ErrorCategory> getLastErrorCategory() {
+        return Optional.ofNullable(lastErrorCategory);
     }
 
     /**
@@ -86,7 +143,9 @@ public class Yachiyo {
     private void run() {
         try (Ui ui = this.ui) {
             ui.showIntroduction();
-            initializeTasks(ui);
+            if (!initializeTasks(ui)) {
+                return;
+            }
 
             boolean isExit = false;
             while (!isExit && ui.hasNextCommand()) {
@@ -105,21 +164,24 @@ public class Yachiyo {
     }
 
     /**
-     * Loads saved tasks once before either interface processes its first command.
+     * Loads saved tasks before either interface processes its first command.
      *
      * @param outputUi interface that receives a loading error, if one occurs.
+     * @return true if tasks are available and commands can be processed.
      */
-    private void initializeTasks(Ui outputUi) {
+    private boolean initializeTasks(Ui outputUi) {
         if (isInitialized) {
-            return;
+            return true;
         }
 
         try {
             tasks = new TaskList(storage.loadTasks());
-        } catch (YachiyoException e) {
-            outputUi.showError(e.getMessage());
-        } finally {
             isInitialized = true;
+            return true;
+        } catch (YachiyoException e) {
+            recordError(e);
+            outputUi.showError(e.getMessage());
+            return false;
         }
     }
 
@@ -138,8 +200,20 @@ public class Yachiyo {
             command.execute(tasks, outputUi, storage);
             return command.isExit();
         } catch (YachiyoException e) {
+            recordError(e);
             outputUi.showError(e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Records an error category while ensuring a system error is never masked by a later error.
+     *
+     * @param error error reported while processing the current response.
+     */
+    private void recordError(YachiyoException error) {
+        if (lastErrorCategory != ErrorCategory.SYSTEM_ERROR) {
+            lastErrorCategory = error.getCategory();
         }
     }
 }

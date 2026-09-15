@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -90,7 +91,7 @@ public class DeleteCommandTest {
         public void saveTasks(List<Task> tasks) throws YachiyoException {
             saveCallCount++;
             if (shouldFail) {
-                throw new YachiyoException("Simulated save failure");
+                throw new YachiyoException(SYSTEM_ERROR, "Simulated save failure");
             }
             savedTasks = List.copyOf(tasks);
         }

@@ -1,5 +1,7 @@
 package yachiyo.command;
 
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
+
 import java.time.LocalDateTime;
 
 import yachiyo.exception.YachiyoException;
@@ -28,10 +30,12 @@ public class EditEventStartDateTimeCommand extends EditCommand {
     @Override
     protected Task createEditedTask(Task task) throws YachiyoException {
         if (!(task instanceof Event event)) {
-            throw new YachiyoException("Only event tasks have a /from start time to edit.");
+            throw new YachiyoException(INVALID_OPERATION,
+                    "Only event tasks have a /from start time to edit.");
         }
         if (!event.getTo().isAfter(from)) {
-            throw new YachiyoException("Hmm, the event should start before it ends.");
+            throw new YachiyoException(INVALID_OPERATION,
+                    "Hmm, the event should start before it ends.");
         }
         return event.withFrom(from);
     }

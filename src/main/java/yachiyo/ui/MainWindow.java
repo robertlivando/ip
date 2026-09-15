@@ -6,6 +6,7 @@ import java.util.Objects;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -28,6 +29,9 @@ public class MainWindow extends AnchorPane {
     private ScrollPane scrollPane;
 
     @FXML
+    private Label taskSummary;
+
+    @FXML
     private VBox dialogContainer;
 
     @FXML
@@ -44,12 +48,14 @@ public class MainWindow extends AnchorPane {
     @FXML
     private void initialize() {
         assert scrollPane != null
+                && taskSummary != null
                 && dialogContainer != null
                 && userInput != null
                 && sendButton != null
                 : "Main-window controls must be injected from FXML";
 
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.heightProperty().addListener((observable, oldHeight, newHeight) ->
+                scrollPane.setVvalue(scrollPane.getVmax()));
     }
 
     /**
@@ -62,6 +68,12 @@ public class MainWindow extends AnchorPane {
         dialogContainer.getChildren().add(
                 DialogBox.getYachiyoDialog(yachiyo.getGreeting(), yachiyoImage)
         );
+
+        String initializationResponse = yachiyo.initialize();
+        if (!initializationResponse.isEmpty()) {
+            dialogContainer.getChildren().add(createYachiyoDialog(initializationResponse));
+        }
+        updateTaskSummary();
     }
 
     /**
@@ -79,13 +91,42 @@ public class MainWindow extends AnchorPane {
         String response = yachiyo.getResponse(input);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getYachiyoDialog(response, yachiyoImage)
+                createYachiyoDialog(response)
         );
+        updateTaskSummary();
         userInput.clear();
 
         if (yachiyo.isExitRequested()) {
             disableInputAndScheduleClose();
         }
+    }
+
+    /**
+     * Creates a standard or categorized error dialog for a Yachiyo response.
+     *
+     * @param response response to display.
+     * @return dialog containing the response.
+     */
+    private DialogBox createYachiyoDialog(String response) {
+        return yachiyo.getLastErrorCategory()
+                .map(category -> DialogBox.getYachiyoErrorDialog(response, yachiyoImage, category))
+                .orElseGet(() -> DialogBox.getYachiyoDialog(response, yachiyoImage));
+    }
+
+    /**
+     * Updates the pinned summary using the latest loaded task counts.
+     */
+    private void updateTaskSummary() {
+        if (!yachiyo.hasLoadedTasks()) {
+            taskSummary.setText("Tasks unavailable");
+            return;
+        }
+
+        int taskCount = yachiyo.getTaskCount();
+        int remainingCount = yachiyo.getRemainingTaskCount();
+        String taskNoun = taskCount == 1 ? "task" : "tasks";
+        taskSummary.setText(String.format("%d %s · %d remaining",
+                taskCount, taskNoun, remainingCount));
     }
 
     /**

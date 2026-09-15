@@ -1,5 +1,7 @@
 package yachiyo.task;
 
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,7 +183,7 @@ public class TaskList {
      */
     private int toIndex(int taskNumber) throws YachiyoException {
         if (taskNumber < 1 || taskNumber > tasks.size()) {
-            throw new YachiyoException(
+            throw new YachiyoException(INVALID_OPERATION,
                     String.format("Hmm... choose a task number from 1 to %d, okay?", tasks.size())
             );
         }
