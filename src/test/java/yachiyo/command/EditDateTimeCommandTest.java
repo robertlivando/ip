@@ -3,8 +3,9 @@ package yachiyo.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.TestAssertions.assertYachiyoException;
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -87,7 +88,7 @@ public class EditDateTimeCommandTest {
         RecordingStorage storage = new RecordingStorage();
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () ->
+        assertYachiyoException(INVALID_OPERATION, () ->
                 new EditEventStartDateTimeCommand(1, END)
                         .execute(tasks, ui, storage));
         assertEquals(List.of(originalTask), tasks.getTasks());
@@ -132,7 +133,7 @@ public class EditDateTimeCommandTest {
         RecordingStorage storage = new RecordingStorage();
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () ->
+        assertYachiyoException(INVALID_OPERATION, () ->
                 new EditEventEndDateTimeCommand(1, START)
                         .execute(tasks, ui, storage));
         assertEquals(List.of(originalTask), tasks.getTasks());
@@ -159,7 +160,8 @@ public class EditDateTimeCommandTest {
         RecordingStorage storage = new RecordingStorage();
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () -> command.execute(tasks, ui, storage));
+        assertYachiyoException(
+                INVALID_OPERATION, () -> command.execute(tasks, ui, storage));
         assertEquals(List.of(originalTask), tasks.getTasks());
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.showEditedCallCount);

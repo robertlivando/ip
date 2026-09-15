@@ -2,8 +2,9 @@ package yachiyo.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.TestAssertions.assertYachiyoException;
+import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -133,7 +134,7 @@ public class StorageTest {
     public void loadTasks_fileCannotBeRead_exceptionThrown() {
         Storage storage = new Storage(tempDirectory);
 
-        assertThrows(YachiyoException.class, storage::loadTasks);
+        assertYachiyoException(SYSTEM_ERROR, storage::loadTasks);
     }
 
     @Test
@@ -199,7 +200,8 @@ public class StorageTest {
         Files.writeString(directoryPath.resolve("existing-file"), "Keep me");
         Storage storage = new Storage(directoryPath);
 
-        assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(new ToDo("Read book"))));
+        assertYachiyoException(
+                SYSTEM_ERROR, () -> storage.saveTasks(List.of(new ToDo("Read book"))));
         try (Stream<Path> files = Files.list(tempDirectory)) {
             assertEquals(List.of(directoryPath), files.toList());
         }
@@ -215,7 +217,7 @@ public class StorageTest {
         };
         Storage storage = new Storage(dataFilePath());
 
-        assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(task)));
+        assertYachiyoException(SYSTEM_ERROR, () -> storage.saveTasks(List.of(task)));
         assertTrue(Files.notExists(dataFilePath()));
     }
 
@@ -245,6 +247,6 @@ public class StorageTest {
     private void assertInvalidDataRejected() {
         Storage storage = new Storage(dataFilePath());
 
-        assertThrows(YachiyoException.class, storage::loadTasks);
+        assertYachiyoException(SYSTEM_ERROR, storage::loadTasks);
     }
 }
