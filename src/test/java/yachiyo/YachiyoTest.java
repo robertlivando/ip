@@ -115,6 +115,51 @@ public class YachiyoTest {
     }
 
     @Test
+    public void getResponse_find_matchesWithoutChangingStoredTasks() throws IOException {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+        yachiyo.getResponse("todo Read book");
+        yachiyo.getResponse("deadline Submit report /by 20/8/2026 1700");
+        yachiyo.getResponse("todo Return BOOK");
+        String storedDataBeforeSearch = Files.readString(dataFilePath);
+
+        String matchingResponse = yachiyo.getResponse("find book");
+        String noMatchResponse = yachiyo.getResponse("find presentation");
+
+        assertTrue(matchingResponse.contains("matching \"book\""));
+        assertTrue(matchingResponse.contains("1. [T][ ] Read book"));
+        assertTrue(matchingResponse.contains("3. [T][ ] Return BOOK"));
+        assertFalse(matchingResponse.contains("Submit report"));
+        assertEquals("I couldn't find any tasks matching \"presentation\".",
+                noMatchResponse);
+        assertEquals(storedDataBeforeSearch, Files.readString(dataFilePath));
+    }
+
+    @Test
+    public void getResponse_onDate_matchesWithoutChangingStoredTasks() throws IOException {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+        yachiyo.getResponse("todo Read book");
+        yachiyo.getResponse("deadline Submit report /by 20/8/2026 1700");
+        yachiyo.getResponse(
+                "event Orientation /from 19/8/2026 0900 /to 21/8/2026 1700");
+        yachiyo.getResponse("deadline Pay bill /by 22/8/2026 1200");
+        String storedDataBeforeSearch = Files.readString(dataFilePath);
+
+        String matchingResponse = yachiyo.getResponse("on 20/8/2026");
+        String noMatchResponse = yachiyo.getResponse("on 18/8/2026");
+
+        assertTrue(matchingResponse.contains("on Aug 20 2026"));
+        assertTrue(matchingResponse.contains("2. [D][ ] Submit report"));
+        assertTrue(matchingResponse.contains("3. [E][ ] Orientation"));
+        assertFalse(matchingResponse.contains("Read book"));
+        assertFalse(matchingResponse.contains("Pay bill"));
+        assertEquals("There are no deadlines or events on Aug 18 2026.",
+                noMatchResponse);
+        assertEquals(storedDataBeforeSearch, Files.readString(dataFilePath));
+    }
+
+    @Test
     public void getResponse_invalidCommand_errorReturned() {
         Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
 
