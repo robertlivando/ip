@@ -2,6 +2,9 @@ package yachiyo.command;
 
 import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import yachiyo.exception.YachiyoException;
 import yachiyo.storage.Storage;
 import yachiyo.task.Task;
@@ -45,8 +48,11 @@ public class UnmarkCommand extends Command {
             return;
         }
 
+        List<Task> updatedTasks = new ArrayList<>(tasks.getTasks());
+        updatedTasks.set(taskNumber - 1, task.withCompletionStatus(false));
+
+        storage.saveTasks(updatedTasks);
         task.markAsNotDone();
-        storage.saveTasks(tasks.getTasks());
         ui.showTaskUnmarked(task, tasks.getRemainingTaskCount());
     }
 }

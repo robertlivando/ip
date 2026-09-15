@@ -2,6 +2,9 @@ package yachiyo.command;
 
 import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import yachiyo.exception.YachiyoException;
 import yachiyo.storage.Storage;
 import yachiyo.task.Task;
@@ -39,8 +42,12 @@ public class DeleteCommand extends Command {
             );
         }
 
-        Task task = tasks.delete(taskNumber);
-        storage.saveTasks(tasks.getTasks());
+        Task task = tasks.get(taskNumber);
+        List<Task> updatedTasks = new ArrayList<>(tasks.getTasks());
+        updatedTasks.remove(taskNumber - 1);
+
+        storage.saveTasks(updatedTasks);
+        tasks.delete(taskNumber);
         ui.showTaskDeleted(task, tasks.size());
     }
 }

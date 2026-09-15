@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -183,19 +184,45 @@ public class Storage {
      * @throws YachiyoException if the tasks cannot be written to the file.
      */
     public void saveTasks(List<Task> tasks) throws YachiyoException {
+        Path temporaryFile = null;
         try {
-            Path parentDirectory = filePath.getParent();
-            if (parentDirectory != null) {
-                Files.createDirectories(parentDirectory);
+            Path absoluteFilePath = filePath.toAbsolutePath();
+            Path parentDirectory = absoluteFilePath.getParent();
+            if (parentDirectory == null) {
+                throw new IOException("Data file must have a parent directory");
             }
+            Files.createDirectories(parentDirectory);
 
             List<String> taskLines = tasks.stream()
                     .map(Task::toFileFormat)
                     .toList();
-            Files.write(filePath, taskLines, StandardCharsets.UTF_8);
-        } catch (IOException e) {
+            temporaryFile = Files.createTempFile(parentDirectory, ".yachiyo-", ".tmp");
+            Files.write(temporaryFile, taskLines, StandardCharsets.UTF_8);
+            Files.move(temporaryFile, absoluteFilePath,
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException | SecurityException e) {
             throw new YachiyoException(SYSTEM_ERROR,
                     "Oh no! I can't seem to save your tasks to the data file.");
+        } finally {
+            deleteTemporaryFile(temporaryFile);
+        }
+    }
+
+    /**
+     * Removes an unfinished temporary save without masking the original save result.
+     *
+     * @param temporaryFile temporary file to remove, or {@code null} if none was created.
+     */
+    private void deleteTemporaryFile(Path temporaryFile) {
+        if (temporaryFile == null) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(temporaryFile);
+        } catch (IOException | SecurityException ignored) {
+            // Preserve the original save result if cleanup is not permitted.
         }
     }
 }

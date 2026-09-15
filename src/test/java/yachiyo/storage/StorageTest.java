@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -184,10 +185,17 @@ public class StorageTest {
     }
 
     @Test
-    public void saveTasks_fileCannotBeWritten_exceptionThrown() {
-        Storage storage = new Storage(tempDirectory);
+    public void saveTasks_fileCannotBeWritten_exceptionThrownAndTemporaryFileRemoved()
+            throws IOException {
+        Path directoryPath = tempDirectory.resolve("directory-target");
+        Files.createDirectories(directoryPath);
+        Files.writeString(directoryPath.resolve("existing-file"), "Keep me");
+        Storage storage = new Storage(directoryPath);
 
         assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(new ToDo("Read book"))));
+        try (Stream<Path> files = Files.list(tempDirectory)) {
+            assertEquals(List.of(directoryPath), files.toList());
+        }
     }
 
     /**

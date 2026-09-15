@@ -50,6 +50,23 @@ public abstract class Task {
     public abstract Task withDescription(String description);
 
     /**
+     * Returns a copy of this task with the specified completion status.
+     * The task type, description, and type-specific details are preserved.
+     *
+     * @param isCompleted replacement completion status.
+     * @return task containing the replacement completion status.
+     */
+    public Task withCompletionStatus(boolean isCompleted) {
+        Task copiedTask = withDescription(description);
+        if (isCompleted) {
+            copiedTask.markAsDone();
+        } else {
+            copiedTask.markAsNotDone();
+        }
+        return copiedTask;
+    }
+
+    /**
      * Copies this task's completion status to another task.
      *
      * @param <T> type of task receiving the completion status.

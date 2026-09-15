@@ -1,5 +1,8 @@
 package yachiyo.command;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import yachiyo.exception.YachiyoException;
 import yachiyo.storage.Storage;
 import yachiyo.task.Task;
@@ -31,8 +34,11 @@ public class AddCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws YachiyoException {
+        List<Task> updatedTasks = new ArrayList<>(tasks.getTasks());
+        updatedTasks.add(task);
+
+        storage.saveTasks(updatedTasks);
         tasks.add(task);
-        storage.saveTasks(tasks.getTasks());
         ui.showTaskAdded(task, tasks.size());
     }
 }

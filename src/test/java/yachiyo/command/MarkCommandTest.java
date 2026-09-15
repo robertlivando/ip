@@ -34,7 +34,10 @@ public class MarkCommandTest {
         new MarkCommand(1).execute(tasks, ui, storage);
 
         assertTrue(targetTask.isCompleted());
-        assertEquals(List.of(targetTask, otherTask), storage.savedTasks);
+        assertEquals(
+                tasks.getTasks().stream().map(Task::toFileFormat).toList(),
+                storage.savedTasks.stream().map(Task::toFileFormat).toList()
+        );
         assertSame(targetTask, ui.markedTask);
         assertEquals(1, ui.remainingCount);
     }
@@ -79,14 +82,14 @@ public class MarkCommandTest {
     }
 
     @Test
-    public void execute_storageFails_exceptionPropagatedAndConfirmationNotShown() {
+    public void execute_storageFails_taskUnchangedAndConfirmationNotShown() {
         Task task = new ToDo("Read book");
         TaskList tasks = new TaskList(List.of(task));
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
         assertThrows(YachiyoException.class, () -> new MarkCommand(1).execute(tasks, ui, storage));
-        assertTrue(task.isCompleted());
+        assertFalse(task.isCompleted());
         assertEquals(0, ui.showMarkedCallCount);
     }
 

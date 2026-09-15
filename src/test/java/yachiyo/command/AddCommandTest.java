@@ -3,6 +3,7 @@ package yachiyo.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
 
 import java.nio.file.Path;
@@ -52,14 +53,14 @@ public class AddCommandTest {
     }
 
     @Test
-    public void execute_storageFails_exceptionPropagatedAndConfirmationNotShown() {
+    public void execute_storageFails_taskListUnchangedAndConfirmationNotShown() {
         Task task = new ToDo("Read book");
         TaskList tasks = new TaskList();
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
         assertThrows(YachiyoException.class, () -> new AddCommand(task).execute(tasks, ui, storage));
-        assertEquals(List.of(task), tasks.getTasks());
+        assertTrue(tasks.isEmpty());
         assertEquals(0, ui.showAddedCallCount);
     }
 
