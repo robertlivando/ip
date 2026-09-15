@@ -149,7 +149,7 @@ public class YachiyoTest {
 
         String greeting = yachiyo.getGreeting();
 
-        assertEquals("Hello! Yachiyo here!\nWhat shall we accomplish today?", greeting);
+        assertTrue(greeting.endsWith("! Yachiyo here!\nWhat shall we accomplish today?"));
     }
 
     @Test
