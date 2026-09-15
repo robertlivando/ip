@@ -60,8 +60,9 @@ public class Yachiyo {
         lastErrorCategory = null;
         StringWriter responseWriter = new StringWriter();
         try (Ui responseUi = new Ui(responseWriter)) {
-            initializeTasks(responseUi);
-            isExitRequested = executeCommand(input.trim(), responseUi);
+            if (initializeTasks(responseUi)) {
+                isExitRequested = executeCommand(input.trim(), responseUi);
+            }
         }
         return responseWriter.toString().stripTrailing();
     }
@@ -99,7 +100,9 @@ public class Yachiyo {
     private void run() {
         try (Ui ui = this.ui) {
             ui.showIntroduction();
-            initializeTasks(ui);
+            if (!initializeTasks(ui)) {
+                return;
+            }
 
             boolean isExit = false;
             while (!isExit && ui.hasNextCommand()) {
@@ -118,22 +121,24 @@ public class Yachiyo {
     }
 
     /**
-     * Loads saved tasks once before either interface processes its first command.
+     * Loads saved tasks before either interface processes its first command.
      *
      * @param outputUi interface that receives a loading error, if one occurs.
+     * @return true if tasks are available and commands can be processed.
      */
-    private void initializeTasks(Ui outputUi) {
+    private boolean initializeTasks(Ui outputUi) {
         if (isInitialized) {
-            return;
+            return true;
         }
 
         try {
             tasks = new TaskList(storage.loadTasks());
+            isInitialized = true;
+            return true;
         } catch (YachiyoException e) {
             recordError(e);
             outputUi.showError(e.getMessage());
-        } finally {
-            isInitialized = true;
+            return false;
         }
     }
 

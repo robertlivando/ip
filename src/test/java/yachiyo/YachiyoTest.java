@@ -99,7 +99,7 @@ public class YachiyoTest {
 
         String response = yachiyo.getResponse("list");
 
-        assertTrue(response.contains("Some task data in the file isn't in the expected format"));
+        assertEquals("Oh no! Some task data in the file isn't in the expected format.", response);
         assertEquals(Optional.of(SYSTEM_ERROR), yachiyo.getLastErrorCategory());
     }
 
