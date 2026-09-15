@@ -70,7 +70,10 @@ public final class Parser {
         return switch (type) {
             case MARK -> new MarkCommand(parseTaskNumber(arguments));
             case UNMARK -> new UnmarkCommand(parseTaskNumber(arguments));
-            case LIST -> new ListCommand();
+            case LIST -> {
+                validateNoArguments(arguments, "list");
+                yield new ListCommand();
+            }
             case FIND -> new FindCommand(parseKeyword(arguments));
             case TODO -> new AddCommand(parseToDo(arguments));
             case DEADLINE -> new AddCommand(parseDeadline(arguments));
@@ -78,8 +81,28 @@ public final class Parser {
             case ON -> new FindOnDateCommand(parseDate(arguments));
             case EDIT -> parseEdit(arguments);
             case DELETE -> new DeleteCommand(parseTaskNumber(arguments));
-            case BYE -> new ExitCommand();
+            case BYE -> {
+                validateNoArguments(arguments, "bye");
+                yield new ExitCommand();
+            }
         };
+    }
+
+    /**
+     * Checks that a command which takes no arguments has no trailing details.
+     *
+     * @param arguments text following the command word.
+     * @param commandWord command word shown in the correction message.
+     * @throws YachiyoException if unexpected arguments are present.
+     */
+    private static void validateNoArguments(String arguments, String commandWord)
+            throws YachiyoException {
+        if (!arguments.isBlank()) {
+            throw new YachiyoException(WARNING,
+                    String.format("Hmm... the %s command doesn't need anything after it. "
+                            + "Did you mean \"%s\"?", commandWord, commandWord)
+            );
+        }
     }
 
     /**

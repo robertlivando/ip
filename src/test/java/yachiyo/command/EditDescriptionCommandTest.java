@@ -3,8 +3,9 @@ package yachiyo.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.TestAssertions.assertYachiyoException;
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
 
 import java.nio.file.Path;
@@ -53,7 +54,7 @@ public class EditDescriptionCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () ->
+        assertYachiyoException(INVALID_OPERATION, () ->
                 new EditDescriptionCommand(1, "Return book")
                         .execute(new TaskList(), ui, storage));
         assertEquals(0, storage.saveCallCount);
@@ -67,7 +68,7 @@ public class EditDescriptionCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () ->
+        assertYachiyoException(INVALID_OPERATION, () ->
                 new EditDescriptionCommand(2, "Return book").execute(tasks, ui, storage));
         assertEquals(List.of(originalTask), tasks.getTasks());
         assertEquals(0, storage.saveCallCount);
@@ -81,7 +82,7 @@ public class EditDescriptionCommandTest {
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () ->
+        assertYachiyoException(SYSTEM_ERROR, () ->
                 new EditDescriptionCommand(1, "Return book").execute(tasks, ui, storage));
         assertEquals("Read book", tasks.getTasks().getFirst().getDescription());
         assertEquals(0, ui.showEditedCallCount);

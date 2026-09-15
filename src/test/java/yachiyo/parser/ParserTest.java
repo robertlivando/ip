@@ -3,8 +3,9 @@ package yachiyo.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.TestAssertions.assertYachiyoException;
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 import static yachiyo.exception.ErrorCategory.WARNING;
 
 import java.nio.file.Path;
@@ -27,6 +28,7 @@ import yachiyo.command.FindOnDateCommand;
 import yachiyo.command.ListCommand;
 import yachiyo.command.MarkCommand;
 import yachiyo.command.UnmarkCommand;
+import yachiyo.exception.ErrorCategory;
 import yachiyo.exception.YachiyoException;
 import yachiyo.storage.Storage;
 import yachiyo.task.Deadline;
@@ -51,6 +53,16 @@ public class ParserTest {
     @Test
     public void parse_byeCommand_exitCommandReturned() throws YachiyoException {
         assertInstanceOf(ExitCommand.class, Parser.parse("bye"));
+    }
+
+    @Test
+    public void parse_listCommandWithArguments_warningThrown() {
+        assertNoArgumentCommandRejected("list everything", "list");
+    }
+
+    @Test
+    public void parse_byeCommandWithArguments_warningThrown() {
+        assertNoArgumentCommandRejected("bye for now", "bye");
     }
 
     @Test
@@ -194,39 +206,39 @@ public class ParserTest {
 
     @Test
     public void parse_unknownCommand_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("unknown"));
+        assertParsingFailsWithCategory("unknown", WARNING);
     }
 
     @Test
     public void parse_taskNumberMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("mark"));
+        assertParsingFailsWithCategory("mark", WARNING);
     }
 
     @Test
     public void parse_findKeywordMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("find"));
+        assertParsingFailsWithCategory("find", WARNING);
     }
 
     @Test
     public void parse_taskNumberNotWholeNumber_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("delete two"));
+        assertParsingFailsWithCategory("delete two", WARNING);
     }
 
     @Test
     public void parse_editTaskNumberMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("edit"));
+        assertParsingFailsWithCategory("edit", WARNING);
     }
 
     @Test
     public void parse_editTaskNumberNotWholeNumber_exceptionThrown() {
-        assertThrows(YachiyoException.class, () ->
-                Parser.parse("edit one /description Return book"));
+        assertParsingFailsWithCategory(
+                "edit one /description Return book", WARNING);
     }
 
     @Test
     public void parse_editFieldMissing_exceptionThrown() {
-        YachiyoException exception = assertThrows(
-                YachiyoException.class, () -> Parser.parse("edit 1"));
+        YachiyoException exception = assertYachiyoException(
+                WARNING, () -> Parser.parse("edit 1"));
 
         assertEquals(
                 "Which detail should I edit? Try /description, /by, /from, or /to "
@@ -237,28 +249,28 @@ public class ParserTest {
 
     @Test
     public void parse_editFieldUnsupported_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /priority high"));
+        assertParsingFailsWithCategory("edit 1 /priority high", INVALID_OPERATION);
     }
 
     @Test
     public void parse_editDescriptionMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /description"));
+        assertParsingFailsWithCategory("edit 1 /description", WARNING);
     }
 
     @Test
     public void parse_editDateTimeMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("edit 1 /by"));
+        assertParsingFailsWithCategory("edit 1 /by", WARNING);
     }
 
     @Test
     public void parse_editDateTimeInvalid_exceptionThrown() {
-        assertThrows(YachiyoException.class, () ->
-                Parser.parse("edit 1 /from 31/2/2026 1000"));
+        assertParsingFailsWithCategory(
+                "edit 1 /from 31/2/2026 1000", WARNING);
     }
 
     @Test
     public void parse_todoDescriptionMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("todo"));
+        assertParsingFailsWithCategory("todo", WARNING);
     }
 
     @Test
@@ -280,68 +292,73 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_todoDescriptionContainsCommandDelimiter_taskReturned()
+            throws YachiyoException {
+        Task task = executeAddCommand("todo Compare deadlines /by 12");
+
+        assertEquals("Compare deadlines /by 12", task.getDescription());
+    }
+
+    @Test
     public void parse_deadlineDescriptionMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("deadline /by 20/8/2026 1700"));
+        assertParsingFailsWithCategory("deadline /by 20/8/2026 1700", WARNING);
     }
 
     @Test
     public void parse_deadlineDateTimeMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("deadline Submit report"));
+        assertParsingFailsWithCategory("deadline Submit report", WARNING);
     }
 
     @Test
     public void parse_deadlineDateTimeInvalid_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("deadline Submit report /by 31/2/2026 1700"));
+        assertParsingFailsWithCategory(
+                "deadline Submit report /by 31/2/2026 1700", WARNING);
     }
 
     @Test
     public void parse_eventDescriptionMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse(
-                "event /from 20/8/2026 0900 /to 20/8/2026 1700"
-        ));
+        assertParsingFailsWithCategory(
+                "event /from 20/8/2026 0900 /to 20/8/2026 1700", WARNING);
     }
 
     @Test
     public void parse_eventStartMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("event Orientation"));
+        assertParsingFailsWithCategory("event Orientation", WARNING);
     }
 
     @Test
     public void parse_eventEndMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse(
-                "event Orientation /from 20/8/2026 0900"
-        ));
+        assertParsingFailsWithCategory(
+                "event Orientation /from 20/8/2026 0900", WARNING);
     }
 
     @Test
     public void parse_eventStartInvalid_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse(
-                "event Orientation /from tomorrow /to 20/8/2026 1700"
-        ));
+        assertParsingFailsWithCategory(
+                "event Orientation /from tomorrow /to 20/8/2026 1700", WARNING);
     }
 
     @Test
     public void parse_eventEndInvalid_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse(
-                "event Orientation /from 20/8/2026 0900 /to later"
-        ));
+        assertParsingFailsWithCategory(
+                "event Orientation /from 20/8/2026 0900 /to later", WARNING);
     }
 
     @Test
     public void parse_eventEndNotAfterStart_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse(
-                "event Orientation /from 20/8/2026 1700 /to 20/8/2026 1700"
-        ));
+        assertParsingFailsWithCategory(
+                "event Orientation /from 20/8/2026 1700 /to 20/8/2026 1700",
+                INVALID_OPERATION);
     }
 
     @Test
     public void parse_onDateMissing_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("on"));
+        assertParsingFailsWithCategory("on", WARNING);
     }
 
     @Test
     public void parse_onDateInvalid_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> Parser.parse("on 31/2/2026"));
+        assertParsingFailsWithCategory("on 31/2/2026", WARNING);
     }
 
     /**
@@ -367,14 +384,41 @@ public class ParserTest {
      * @param input command containing an unsafe description.
      */
     private void assertDescriptionRejected(String input) {
-        YachiyoException exception = assertThrows(
-                YachiyoException.class, () -> Parser.parse(input));
+        YachiyoException exception = assertYachiyoException(
+                WARNING, () -> Parser.parse(input));
 
-        assertEquals(WARNING, exception.getCategory());
         assertEquals(
                 "Descriptions can't contain the \"|\" character. Could you remove it?",
                 exception.getMessage()
         );
+    }
+
+    /**
+     * Verifies that a no-argument command rejects trailing details as a warning.
+     *
+     * @param input command containing unexpected arguments.
+     * @param commandWord command word expected in the correction message.
+     */
+    private void assertNoArgumentCommandRejected(String input, String commandWord) {
+        YachiyoException exception = assertYachiyoException(
+                WARNING, () -> Parser.parse(input));
+
+        assertEquals(
+                String.format("Hmm... the %s command doesn't need anything after it. "
+                        + "Did you mean \"%s\"?", commandWord, commandWord),
+                exception.getMessage()
+        );
+    }
+
+    /**
+     * Verifies that parsing an input fails with the expected error category.
+     *
+     * @param input command expected to be rejected.
+     * @param expectedCategory expected presentation category.
+     */
+    private void assertParsingFailsWithCategory(String input,
+            ErrorCategory expectedCategory) {
+        assertYachiyoException(expectedCategory, () -> Parser.parse(input));
     }
 
     /**

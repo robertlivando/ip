@@ -60,9 +60,7 @@ public class Yachiyo {
         lastErrorCategory = null;
         StringWriter responseWriter = new StringWriter();
         try (Ui responseUi = new Ui(responseWriter)) {
-            if (initializeTasks(responseUi)) {
-                isExitRequested = executeCommand(input.trim(), responseUi);
-            }
+            isExitRequested = executeCommand(input.trim(), responseUi);
         }
         return responseWriter.toString().stripTrailing();
     }
@@ -186,17 +184,18 @@ public class Yachiyo {
     }
 
     /**
-     * Parses and executes one command using the shared task list and storage.
+     * Parses and executes one command, loading tasks first unless the command exits.
      *
      * @param input command entered by the user.
      * @param outputUi interface that receives command output.
      * @return true if the command requests that the application exit.
      */
     private boolean executeCommand(String input, Ui outputUi) {
-        assert isInitialized : "Tasks must be initialized before executing a command";
-
         try {
             Command command = Parser.parse(input);
+            if (!command.isExit() && !initializeTasks(outputUi)) {
+                return false;
+            }
             command.execute(tasks, outputUi, storage);
             return command.isExit();
         } catch (YachiyoException e) {

@@ -2,7 +2,8 @@ package yachiyo.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static yachiyo.TestAssertions.assertYachiyoException;
+import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 import static yachiyo.exception.ErrorCategory.SYSTEM_ERROR;
 
 import java.nio.file.Path;
@@ -43,7 +44,8 @@ public class DeleteCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () -> new DeleteCommand(1).execute(tasks, ui, storage));
+        assertYachiyoException(
+                INVALID_OPERATION, () -> new DeleteCommand(1).execute(tasks, ui, storage));
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.showDeletedCallCount);
     }
@@ -55,7 +57,8 @@ public class DeleteCommandTest {
         RecordingStorage storage = new RecordingStorage(false);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () -> new DeleteCommand(2).execute(tasks, ui, storage));
+        assertYachiyoException(
+                INVALID_OPERATION, () -> new DeleteCommand(2).execute(tasks, ui, storage));
         assertEquals(List.of(task), tasks.getTasks());
         assertEquals(0, storage.saveCallCount);
         assertEquals(0, ui.showDeletedCallCount);
@@ -68,7 +71,8 @@ public class DeleteCommandTest {
         RecordingStorage storage = new RecordingStorage(true);
         RecordingUi ui = new RecordingUi();
 
-        assertThrows(YachiyoException.class, () -> new DeleteCommand(1).execute(tasks, ui, storage));
+        assertYachiyoException(
+                SYSTEM_ERROR, () -> new DeleteCommand(1).execute(tasks, ui, storage));
         assertEquals(List.of(task), tasks.getTasks());
         assertEquals(0, ui.showDeletedCallCount);
     }

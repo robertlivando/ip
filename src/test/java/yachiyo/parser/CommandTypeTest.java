@@ -1,7 +1,8 @@
 package yachiyo.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static yachiyo.TestAssertions.assertYachiyoException;
+import static yachiyo.exception.ErrorCategory.WARNING;
 
 import java.util.Locale;
 
@@ -35,11 +36,11 @@ public class CommandTypeTest {
 
     @Test
     public void parse_unknownCommand_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> CommandType.parse("unknown"));
+        assertYachiyoException(WARNING, () -> CommandType.parse("unknown"));
     }
 
     @Test
     public void parse_emptyCommand_exceptionThrown() {
-        assertThrows(YachiyoException.class, () -> CommandType.parse(""));
+        assertYachiyoException(WARNING, () -> CommandType.parse(""));
     }
 }
