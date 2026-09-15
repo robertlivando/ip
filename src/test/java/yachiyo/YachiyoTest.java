@@ -191,6 +191,21 @@ public class YachiyoTest {
     }
 
     @Test
+    public void getResponse_byeWithMalformedData_farewellReturnedAndExitRequested()
+            throws IOException {
+        Path dataFilePath = temporaryDirectory.resolve("yachiyo.txt");
+        Files.writeString(dataFilePath, "malformed task data");
+        Yachiyo yachiyo = new Yachiyo(dataFilePath);
+
+        String response = yachiyo.getResponse("bye");
+
+        assertEquals("Until we meet again. Take care!~", response);
+        assertTrue(yachiyo.isExitRequested());
+        assertTrue(yachiyo.getLastErrorCategory().isEmpty());
+        assertFalse(yachiyo.hasLoadedTasks());
+    }
+
+    @Test
     public void getResponse_successAfterError_errorCategoryCleared() {
         Yachiyo yachiyo = new Yachiyo(temporaryDirectory.resolve("yachiyo.txt"));
         yachiyo.getResponse("dance");
