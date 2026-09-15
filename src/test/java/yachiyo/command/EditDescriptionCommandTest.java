@@ -75,7 +75,7 @@ public class EditDescriptionCommandTest {
     }
 
     @Test
-    public void execute_storageFails_exceptionPropagatedAndConfirmationNotShown() {
+    public void execute_storageFails_taskListUnchangedAndConfirmationNotShown() {
         Task originalTask = new ToDo("Read book");
         TaskList tasks = new TaskList(originalTask);
         RecordingStorage storage = new RecordingStorage(true);
@@ -83,7 +83,7 @@ public class EditDescriptionCommandTest {
 
         assertThrows(YachiyoException.class, () ->
                 new EditDescriptionCommand(1, "Return book").execute(tasks, ui, storage));
-        assertEquals("Return book", tasks.getTasks().getFirst().getDescription());
+        assertEquals("Read book", tasks.getTasks().getFirst().getDescription());
         assertEquals(0, ui.showEditedCallCount);
     }
 

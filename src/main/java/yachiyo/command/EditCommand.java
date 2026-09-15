@@ -2,6 +2,9 @@ package yachiyo.command;
 
 import static yachiyo.exception.ErrorCategory.INVALID_OPERATION;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import yachiyo.exception.YachiyoException;
 import yachiyo.storage.Storage;
 import yachiyo.task.Task;
@@ -49,8 +52,11 @@ public abstract class EditCommand extends Command {
         }
 
         Task editedTask = createEditedTask(tasks.get(taskNumber));
+        List<Task> updatedTasks = new ArrayList<>(tasks.getTasks());
+        updatedTasks.set(taskNumber - 1, editedTask);
+
+        storage.saveTasks(updatedTasks);
         tasks.replace(taskNumber, editedTask);
-        storage.saveTasks(tasks.getTasks());
         ui.showTaskEdited(editedTask);
     }
 }

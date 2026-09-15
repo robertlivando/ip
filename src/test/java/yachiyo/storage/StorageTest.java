@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -115,6 +116,13 @@ public class StorageTest {
     }
 
     @Test
+    public void loadTasks_descriptionContainsPipe_exceptionThrown() throws IOException {
+        writeData("TODO | 0 | Compare option A|option B");
+
+        assertInvalidDataRejected();
+    }
+
+    @Test
     public void loadTasks_eventEndNotAfterStart_exceptionThrown() throws IOException {
         writeData("EVENT | 0 | Orientation | 2026-08-20T17:00 | 2026-08-20T09:00");
 
@@ -184,10 +192,31 @@ public class StorageTest {
     }
 
     @Test
-    public void saveTasks_fileCannotBeWritten_exceptionThrown() {
-        Storage storage = new Storage(tempDirectory);
+    public void saveTasks_fileCannotBeWritten_exceptionThrownAndTemporaryFileRemoved()
+            throws IOException {
+        Path directoryPath = tempDirectory.resolve("directory-target");
+        Files.createDirectories(directoryPath);
+        Files.writeString(directoryPath.resolve("existing-file"), "Keep me");
+        Storage storage = new Storage(directoryPath);
 
         assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(new ToDo("Read book"))));
+        try (Stream<Path> files = Files.list(tempDirectory)) {
+            assertEquals(List.of(directoryPath), files.toList());
+        }
+    }
+
+    @Test
+    public void saveTasks_taskDescriptionContainsPipe_exceptionThrownWithoutWriting() {
+        Task task = new ToDo("Safe description") {
+            @Override
+            public String getDescription() {
+                return "Compare option A | option B";
+            }
+        };
+        Storage storage = new Storage(dataFilePath());
+
+        assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(task)));
+        assertTrue(Files.notExists(dataFilePath()));
     }
 
     /**

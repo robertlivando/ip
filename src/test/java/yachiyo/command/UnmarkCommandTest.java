@@ -35,7 +35,10 @@ public class UnmarkCommandTest {
         new UnmarkCommand(1).execute(tasks, ui, storage);
 
         assertFalse(targetTask.isCompleted());
-        assertEquals(List.of(targetTask, otherTask), storage.savedTasks);
+        assertEquals(
+                tasks.getTasks().stream().map(Task::toFileFormat).toList(),
+                storage.savedTasks.stream().map(Task::toFileFormat).toList()
+        );
         assertSame(targetTask, ui.unmarkedTask);
         assertEquals(2, ui.remainingCount);
     }
@@ -80,7 +83,7 @@ public class UnmarkCommandTest {
     }
 
     @Test
-    public void execute_storageFails_exceptionPropagatedAndConfirmationNotShown() {
+    public void execute_storageFails_taskUnchangedAndConfirmationNotShown() {
         Task task = new ToDo("Read book");
         task.markAsDone();
         TaskList tasks = new TaskList(List.of(task));
@@ -88,7 +91,7 @@ public class UnmarkCommandTest {
         RecordingUi ui = new RecordingUi();
 
         assertThrows(YachiyoException.class, () -> new UnmarkCommand(1).execute(tasks, ui, storage));
-        assertFalse(task.isCompleted());
+        assertTrue(task.isCompleted());
         assertEquals(0, ui.showUnmarkedCallCount);
     }
 

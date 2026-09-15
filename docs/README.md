@@ -33,6 +33,7 @@ sessions.
 ## Input conventions
 
 - Command words are not case-sensitive. Descriptions and search terms retain the text you enter.
+- Descriptions cannot contain `|`, which is reserved for Yachiyo's data-file format.
 - Dates use `d/M/yyyy`, for example `2/12/2026`.
 - Date-times use `d/M/yyyy HHmm`, for example `2/12/2026 1800`.
 - Task numbers start from 1 and appear in the results of `list`, `find`, and `on`.

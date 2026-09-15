@@ -15,11 +15,23 @@ public abstract class Task {
      * @param description Description of the task.
      */
     public Task(String description) {
-        assert description != null : "Task description must not be null";
-        assert !description.isBlank() : "Task description must not be blank";
+        assert isValidDescription(description)
+                : "Task description must be non-blank and exclude reserved characters";
 
         this.description = description;
         this.isCompleted = false;
+    }
+
+    /**
+     * Checks whether a description is non-blank and safe for the task storage format.
+     *
+     * @param description description to validate.
+     * @return true if the description can be used by a task.
+     */
+    public static boolean isValidDescription(String description) {
+        return description != null
+                && !description.isBlank()
+                && !description.contains("|");
     }
 
     /**
@@ -48,6 +60,23 @@ public abstract class Task {
      * @return task containing the replacement description.
      */
     public abstract Task withDescription(String description);
+
+    /**
+     * Returns a copy of this task with the specified completion status.
+     * The task type, description, and type-specific details are preserved.
+     *
+     * @param isCompleted replacement completion status.
+     * @return task containing the replacement completion status.
+     */
+    public Task withCompletionStatus(boolean isCompleted) {
+        Task copiedTask = withDescription(description);
+        if (isCompleted) {
+            copiedTask.markAsDone();
+        } else {
+            copiedTask.markAsNotDone();
+        }
+        return copiedTask;
+    }
 
     /**
      * Copies this task's completion status to another task.
