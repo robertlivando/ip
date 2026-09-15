@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.Objects;
 
 import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,6 +22,8 @@ import yachiyo.Yachiyo;
  */
 public class MainWindow extends AnchorPane {
     private static final Duration EXIT_DELAY = Duration.millis(2000);
+    private static final Duration COMPLETION_PULSE_DURATION = Duration.millis(260);
+    private static final double COMPLETION_PULSE_SCALE = 1.08;
 
     private final Image userImage = loadImage("/images/user-profile.png");
     private final Image yachiyoImage = loadImage("/images/yachiyo-profile.png");
@@ -41,6 +44,9 @@ public class MainWindow extends AnchorPane {
     private Button sendButton;
 
     private Yachiyo yachiyo;
+    private int previousTaskCount = -1;
+    private int previousRemainingCount = -1;
+    private ScaleTransition completionPulse;
 
     /**
      * Configures automatic scrolling after the FXML fields are injected.
@@ -73,7 +79,7 @@ public class MainWindow extends AnchorPane {
         if (!initializationResponse.isEmpty()) {
             dialogContainer.getChildren().add(createYachiyoDialog(initializationResponse));
         }
-        updateTaskSummary();
+        updateTaskSummary(false);
     }
 
     /**
@@ -93,7 +99,7 @@ public class MainWindow extends AnchorPane {
                 DialogBox.getUserDialog(input, userImage),
                 createYachiyoDialog(response)
         );
-        updateTaskSummary();
+        updateTaskSummary(true);
         userInput.clear();
 
         if (yachiyo.isExitRequested()) {
@@ -114,19 +120,62 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
-     * Updates the pinned summary using the latest loaded task counts.
+     * Updates the pinned summary and optionally celebrates a transition to no remaining tasks.
+     *
+     * @param canCelebrate whether a successful task-count transition may trigger the animation.
      */
-    private void updateTaskSummary() {
+    private void updateTaskSummary(boolean canCelebrate) {
         if (!yachiyo.hasLoadedTasks()) {
             taskSummary.setText("Tasks unavailable");
+            previousTaskCount = -1;
+            previousRemainingCount = -1;
             return;
         }
 
         int taskCount = yachiyo.getTaskCount();
         int remainingCount = yachiyo.getRemainingTaskCount();
+        boolean hasJustCompletedAllTasks = canCelebrate
+                && yachiyo.getLastErrorCategory().isEmpty()
+                && previousTaskCount == taskCount
+                && previousRemainingCount > 0
+                && remainingCount == 0;
         String taskNoun = taskCount == 1 ? "task" : "tasks";
         taskSummary.setText(String.format("%d %s · %d remaining",
                 taskCount, taskNoun, remainingCount));
+        previousTaskCount = taskCount;
+        previousRemainingCount = remainingCount;
+
+        if (hasJustCompletedAllTasks) {
+            playCompletionCelebration();
+        }
+    }
+
+    /**
+     * Briefly brightens and enlarges the task summary to celebrate completing every task.
+     */
+    private void playCompletionCelebration() {
+        if (completionPulse != null) {
+            completionPulse.stop();
+        }
+
+        taskSummary.setScaleX(1.0);
+        taskSummary.setScaleY(1.0);
+        taskSummary.getStyleClass().remove("task-summary-complete");
+        taskSummary.getStyleClass().add("task-summary-complete");
+
+        ScaleTransition pulse = new ScaleTransition(COMPLETION_PULSE_DURATION, taskSummary);
+        pulse.setToX(COMPLETION_PULSE_SCALE);
+        pulse.setToY(COMPLETION_PULSE_SCALE);
+        pulse.setAutoReverse(true);
+        pulse.setCycleCount(10);
+        pulse.setOnFinished(event -> {
+            taskSummary.setScaleX(1.0);
+            taskSummary.setScaleY(1.0);
+            taskSummary.getStyleClass().remove("task-summary-complete");
+            completionPulse = null;
+        });
+        completionPulse = pulse;
+        pulse.play();
     }
 
     /**

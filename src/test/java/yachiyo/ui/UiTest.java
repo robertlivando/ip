@@ -1,10 +1,14 @@
 package yachiyo.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.StringWriter;
 import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
+
+import yachiyo.task.ToDo;
 
 public class UiTest {
     private static final String GREETING_SUFFIX =
@@ -24,5 +28,17 @@ public class UiTest {
     @Test
     public void getGreeting_evening_konbanwaReturned() {
         assertEquals("Konbanwa" + GREETING_SUFFIX, Ui.getGreeting(LocalTime.of(18, 0)));
+    }
+
+    @Test
+    public void showTaskMarked_noTasksRemaining_celebrationReturned() {
+        StringWriter output = new StringWriter();
+
+        try (Ui ui = new Ui(output)) {
+            ui.showTaskMarked(new ToDo("Read book"), 0);
+        }
+
+        assertTrue(output.toString().contains(
+                "Yayyy! Everything in our lineup is complete!🥳🎉\nGood job!"));
     }
 }

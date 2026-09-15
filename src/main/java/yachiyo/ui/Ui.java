@@ -227,7 +227,8 @@ public class Ui implements AutoCloseable {
         output.println("Woohoo! Another task is complete:");
         showTask(task);
         if (remainingCount == 0) {
-            output.println("Wonderful—everything in our lineup is complete!");
+            output.println("Yayyy! Everything in our lineup is complete!🥳🎉");
+            output.println("Good job!");
         } else {
             output.printf("And with that, our lineup now has %s remaining!%n",
                     formatTaskCount(remainingCount));
