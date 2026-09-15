@@ -170,6 +170,9 @@ public class Storage {
                 throw invalidDataException();
             }
         }
+        if (!Task.isValidDescription(taskParts[DESCRIPTION_FIELD_INDEX])) {
+            throw invalidDataException();
+        }
     }
 
     private YachiyoException invalidDataException() {
@@ -184,6 +187,8 @@ public class Storage {
      * @throws YachiyoException if the tasks cannot be written to the file.
      */
     public void saveTasks(List<Task> tasks) throws YachiyoException {
+        validateTasksForSaving(tasks);
+
         Path temporaryFile = null;
         try {
             Path absoluteFilePath = filePath.toAbsolutePath();
@@ -206,6 +211,20 @@ public class Storage {
                     "Oh no! I can't seem to save your tasks to the data file.");
         } finally {
             deleteTemporaryFile(temporaryFile);
+        }
+    }
+
+    /**
+     * Checks that every task can be represented safely in the storage format.
+     *
+     * @param tasks tasks that are about to be saved.
+     * @throws YachiyoException if a task contains unsupported data.
+     */
+    private void validateTasksForSaving(List<Task> tasks) throws YachiyoException {
+        if (tasks.stream().anyMatch(task -> !Task.isValidDescription(task.getDescription()))) {
+            throw new YachiyoException(SYSTEM_ERROR,
+                    "Oh no! A task contains characters that can't be stored safely."
+            );
         }
     }
 

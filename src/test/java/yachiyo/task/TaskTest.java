@@ -35,6 +35,11 @@ public class TaskTest {
     }
 
     @Test
+    public void constructor_descriptionContainsPipe_assertionErrorThrown() {
+        assertThrows(AssertionError.class, () -> new TestTask("Compare option A | option B"));
+    }
+
+    @Test
     public void markAsDone_incompleteTask_taskCompleted() {
         task.markAsDone();
 

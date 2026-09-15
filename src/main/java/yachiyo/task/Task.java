@@ -15,11 +15,23 @@ public abstract class Task {
      * @param description Description of the task.
      */
     public Task(String description) {
-        assert description != null : "Task description must not be null";
-        assert !description.isBlank() : "Task description must not be blank";
+        assert isValidDescription(description)
+                : "Task description must be non-blank and exclude reserved characters";
 
         this.description = description;
         this.isCompleted = false;
+    }
+
+    /**
+     * Checks whether a description is non-blank and safe for the task storage format.
+     *
+     * @param description description to validate.
+     * @return true if the description can be used by a task.
+     */
+    public static boolean isValidDescription(String description) {
+        return description != null
+                && !description.isBlank()
+                && !description.contains("|");
     }
 
     /**

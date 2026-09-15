@@ -25,6 +25,7 @@ import yachiyo.command.UnmarkCommand;
 import yachiyo.exception.YachiyoException;
 import yachiyo.task.Deadline;
 import yachiyo.task.Event;
+import yachiyo.task.Task;
 import yachiyo.task.ToDo;
 
 /**
@@ -126,13 +127,28 @@ public final class Parser {
      *
      * @param description replacement description supplied by the user.
      * @return validated replacement description.
-     * @throws YachiyoException if the description is missing.
+     * @throws YachiyoException if the description is missing or contains a reserved character.
      */
     private static String parseEditDescription(String description) throws YachiyoException {
         if (description.isBlank()) {
             throw new YachiyoException(WARNING, "What should the new description be?");
         }
+        validateDescriptionCharacters(description);
         return description;
+    }
+
+    /**
+     * Checks that a description excludes characters reserved by the storage format.
+     *
+     * @param description non-blank description supplied by the user.
+     * @throws YachiyoException if the description contains a reserved character.
+     */
+    private static void validateDescriptionCharacters(String description) throws YachiyoException {
+        if (!Task.isValidDescription(description)) {
+            throw new YachiyoException(WARNING,
+                    "Descriptions can't contain the \"|\" character. Could you remove it?"
+            );
+        }
     }
 
     /**
@@ -220,7 +236,7 @@ public final class Parser {
      *
      * @param description task description supplied by the user.
      * @return parsed to-do task.
-     * @throws YachiyoException if the description is missing.
+     * @throws YachiyoException if the description is missing or contains a reserved character.
      */
     private static ToDo parseToDo(String description) throws YachiyoException {
         if (description.isBlank()) {
@@ -228,6 +244,7 @@ public final class Parser {
                     "Hmm, this to-do is missing a description. What shall we call it?"
             );
         }
+        validateDescriptionCharacters(description);
         return new ToDo(description);
     }
 
@@ -246,6 +263,7 @@ public final class Parser {
                     "Hmm, this deadline is missing a description. What shall we call it?"
             );
         }
+        validateDescriptionCharacters(description);
 
         if (deadlineParts.length < 2 || deadlineParts[1].trim().isBlank()) {
             throw new YachiyoException(WARNING,
@@ -272,6 +290,7 @@ public final class Parser {
                     "Hmm, this event is missing a description. What shall we call it?"
             );
         }
+        validateDescriptionCharacters(description);
 
         if (eventParts.length < 2 || eventParts[1].trim().isBlank()) {
             throw new YachiyoException(WARNING,

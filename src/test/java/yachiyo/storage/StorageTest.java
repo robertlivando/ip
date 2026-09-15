@@ -116,6 +116,13 @@ public class StorageTest {
     }
 
     @Test
+    public void loadTasks_descriptionContainsPipe_exceptionThrown() throws IOException {
+        writeData("TODO | 0 | Compare option A|option B");
+
+        assertInvalidDataRejected();
+    }
+
+    @Test
     public void loadTasks_eventEndNotAfterStart_exceptionThrown() throws IOException {
         writeData("EVENT | 0 | Orientation | 2026-08-20T17:00 | 2026-08-20T09:00");
 
@@ -196,6 +203,20 @@ public class StorageTest {
         try (Stream<Path> files = Files.list(tempDirectory)) {
             assertEquals(List.of(directoryPath), files.toList());
         }
+    }
+
+    @Test
+    public void saveTasks_taskDescriptionContainsPipe_exceptionThrownWithoutWriting() {
+        Task task = new ToDo("Safe description") {
+            @Override
+            public String getDescription() {
+                return "Compare option A | option B";
+            }
+        };
+        Storage storage = new Storage(dataFilePath());
+
+        assertThrows(YachiyoException.class, () -> storage.saveTasks(List.of(task)));
+        assertTrue(Files.notExists(dataFilePath()));
     }
 
     /**

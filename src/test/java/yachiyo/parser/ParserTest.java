@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static yachiyo.exception.ErrorCategory.WARNING;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -261,6 +262,24 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_descriptionsContainPipe_warningThrown() {
+        assertDescriptionRejected("todo Compare option A | option B");
+        assertDescriptionRejected(
+                "deadline Submit | review /by 20/8/2026 1700");
+        assertDescriptionRejected(
+                "event Project | meeting /from 20/8/2026 0900 /to 20/8/2026 1700");
+        assertDescriptionRejected("edit 1 /description Compare option A | option B");
+    }
+
+    @Test
+    public void parse_todoDescriptionContainsOtherSpecialCharacters_taskReturned()
+            throws YachiyoException {
+        Task task = executeAddCommand("todo Send Mum's report #2! 🥳");
+
+        assertEquals("Send Mum's report #2! 🥳", task.getDescription());
+    }
+
+    @Test
     public void parse_deadlineDescriptionMissing_exceptionThrown() {
         assertThrows(YachiyoException.class, () -> Parser.parse("deadline /by 20/8/2026 1700"));
     }
@@ -340,6 +359,22 @@ public class ParserTest {
         command.execute(tasks, ui, storage);
 
         return tasks.get(1);
+    }
+
+    /**
+     * Verifies that a command containing a pipe in its description is rejected as a warning.
+     *
+     * @param input command containing an unsafe description.
+     */
+    private void assertDescriptionRejected(String input) {
+        YachiyoException exception = assertThrows(
+                YachiyoException.class, () -> Parser.parse(input));
+
+        assertEquals(WARNING, exception.getCategory());
+        assertEquals(
+                "Descriptions can't contain the \"|\" character. Could you remove it?",
+                exception.getMessage()
+        );
     }
 
     /**
