@@ -3,6 +3,7 @@ package yachiyo.ui;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -21,8 +22,10 @@ public class Ui implements AutoCloseable {
             + " \\ V /   / _ \\  | |     | |_| |   | |    \\ V /  | | | |\n"
             + "  | |   / ___ \\ | |___  |  _  |  _| |_    | |   | |_| |\n"
             + "  |_|  /_/   \\_\\ \\____| |_| |_| |_____|   |_|    \\___/ \n";
-    private static final String GREETING =
-            "Hello! Yachiyo here!\nWhat shall we accomplish today?";
+    private static final LocalTime AFTERNOON_START = LocalTime.NOON;
+    private static final LocalTime EVENING_START = LocalTime.of(18, 0);
+    private static final String GREETING_SUFFIX =
+            "! Yachiyo here!\nWhat shall we accomplish today?";
     private static final String EXIT_MESSAGE = "Until we meet again. Take care!~";
     private static final String BREAKER =
             "===================================================================================";
@@ -73,7 +76,7 @@ public class Ui implements AutoCloseable {
      */
     public void showIntroduction() {
         output.println(BANNER);
-        output.println(GREETING);
+        output.println(getGreeting());
         output.println(BREAKER);
     }
 
@@ -83,7 +86,25 @@ public class Ui implements AutoCloseable {
      * @return introductory greeting.
      */
     public static String getGreeting() {
-        return GREETING;
+        return getGreeting(LocalTime.now());
+    }
+
+    /**
+     * Returns Yachiyo's greeting for the specified time of day.
+     *
+     * @param time local time used to select the greeting.
+     * @return time-appropriate introductory greeting.
+     */
+    static String getGreeting(LocalTime time) {
+        String salutation;
+        if (time.isBefore(AFTERNOON_START)) {
+            salutation = "Ohayou";
+        } else if (time.isBefore(EVENING_START)) {
+            salutation = "Konnichiwa";
+        } else {
+            salutation = "Konbanwa";
+        }
+        return salutation + GREETING_SUFFIX;
     }
 
     /**
@@ -206,7 +227,8 @@ public class Ui implements AutoCloseable {
         output.println("Woohoo! Another task is complete:");
         showTask(task);
         if (remainingCount == 0) {
-            output.println("Wonderful—everything in our lineup is complete!");
+            output.println("Yayyy! Everything in our lineup is complete!🥳🎉");
+            output.println("Good job!");
         } else {
             output.printf("And with that, our lineup now has %s remaining!%n",
                     formatTaskCount(remainingCount));
