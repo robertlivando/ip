@@ -54,6 +54,16 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_listCommandWithArguments_warningThrown() {
+        assertNoArgumentCommandRejected("list everything", "list");
+    }
+
+    @Test
+    public void parse_byeCommandWithArguments_warningThrown() {
+        assertNoArgumentCommandRejected("bye for now", "bye");
+    }
+
+    @Test
     public void parse_findCommand_findCommandReturned() throws YachiyoException {
         assertInstanceOf(FindCommand.class, Parser.parse("find book"));
     }
@@ -280,6 +290,14 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_todoDescriptionContainsCommandDelimiter_taskReturned()
+            throws YachiyoException {
+        Task task = executeAddCommand("todo Compare deadlines /by 12");
+
+        assertEquals("Compare deadlines /by 12", task.getDescription());
+    }
+
+    @Test
     public void parse_deadlineDescriptionMissing_exceptionThrown() {
         assertThrows(YachiyoException.class, () -> Parser.parse("deadline /by 20/8/2026 1700"));
     }
@@ -373,6 +391,24 @@ public class ParserTest {
         assertEquals(WARNING, exception.getCategory());
         assertEquals(
                 "Descriptions can't contain the \"|\" character. Could you remove it?",
+                exception.getMessage()
+        );
+    }
+
+    /**
+     * Verifies that a no-argument command rejects trailing details as a warning.
+     *
+     * @param input command containing unexpected arguments.
+     * @param commandWord command word expected in the correction message.
+     */
+    private void assertNoArgumentCommandRejected(String input, String commandWord) {
+        YachiyoException exception = assertThrows(
+                YachiyoException.class, () -> Parser.parse(input));
+
+        assertEquals(WARNING, exception.getCategory());
+        assertEquals(
+                String.format("Hmm... the %s command doesn't need anything after it. "
+                        + "Did you mean \"%s\"?", commandWord, commandWord),
                 exception.getMessage()
         );
     }
