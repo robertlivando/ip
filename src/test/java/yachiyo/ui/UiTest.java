@@ -39,6 +39,7 @@ public class UiTest {
         }
 
         assertTrue(output.toString().contains(
-                "Yayyy! Everything in our lineup is complete!🥳🎉\nGood job!"));
+                "Yayyy! Everything in our lineup is complete!🥳🎉"
+                        + System.lineSeparator() + "Good job!"));
     }
 }
