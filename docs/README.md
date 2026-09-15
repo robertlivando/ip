@@ -12,7 +12,8 @@ the message field, then press **Enter** or select **Send** to receive Yachiyo's 
 5. Enter `bye` when you are finished. The window closes after Yachiyo's farewell.
 
 Yachiyo saves each change automatically to `data/yachiyo.txt`, so tasks remain available between
-sessions.
+sessions. Tasks are loaded into memory once initialization succeeds, so restart Yachiyo if the data
+file is changed externally during a session.
 
 ## Command summary
 
@@ -168,4 +169,5 @@ number.
 
 Format: `bye`
 
-Yachiyo displays a farewell and then closes the JavaFX window.
+Yachiyo displays a farewell and then closes the JavaFX window. The command remains available if the
+task data cannot be loaded, allowing the application to close normally after a storage error.
